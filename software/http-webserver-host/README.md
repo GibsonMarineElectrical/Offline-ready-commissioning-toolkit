@@ -1,4 +1,4 @@
-Data Gateway (VLB File Browser)
+Data Gateway (File Browser)
 ===============================
 
 Small read-only file browser served at `http://127.0.0.1:<port>`. Files are listed (not clickable); folders are navigable. Copy/paste and right-click are blocked in the UI. A watchdog restarts the server if it stops.

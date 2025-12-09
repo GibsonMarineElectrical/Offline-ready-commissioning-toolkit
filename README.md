@@ -37,4 +37,7 @@ Drop your portable app layout into `software/portable-apps/` to keep ready-to-ru
 - Notepad++ for quick config edits
 - Rufus for creating bootable media
 - Git for Windows with bundled OpenSSH for offline versioning
->>>>>>> Stashed changes
+
+[![Buy Me a Coffee](https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=☕&slug=gme.ltd&button_colour=FFDD00&font_colour=000000&font_family=Arial&outline_colour=000000&coffee_colour=ffffff)](https://buymeacoffee.com/gme.ltd)
+
+
