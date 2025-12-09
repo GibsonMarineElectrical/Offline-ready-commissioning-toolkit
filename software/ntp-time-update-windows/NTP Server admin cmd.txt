@@ -1,0 +1,35 @@
+https://community.spiceworks.com/t/configure-windows-server-to-query-an-external-ntp-server/1006321
+https://learn.microsoft.com/en-us/windows-server/networking/windows-time-service/windows-time-service-tools-and-settings?tabs=config
+
+
+Run this command as admin to set ntp server to router
+
+sc config w32time start= auto
+
+then:
+
+net start w32time
+
+then:
+
+w32tm /config /manualpeerlist:"NTP SERVER" /syncfromflags:manual /reliable:YES /update
+
+then check the source IP has been updated with the command:
+
+w32tm /query /source
+w32tm /query /status
+
+
+Then set it to poll every 15 mins (900) to stay in sync:
+
+reg add HKLM\SYSTEM\CurrentControlSet\Services\W32Time\TimeProviders\NtpClient /v SpecialPollInterval /t REG_DWORD /d 900 /f
+
+
+Then stop and start the service:
+
+net stop w32time && net start w32time
+
+
+The IPC will now point to the Router for it's time. 
+
+The time zone can be adjusted to reflect local time.
