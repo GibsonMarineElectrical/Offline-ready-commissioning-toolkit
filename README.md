@@ -2,6 +2,9 @@
 
 Offline pack for marine and offshore FAT/SAT work where connectivity is limited. Includes electrical and networking references, safety notes, commissioning aids, and a small set of offline utilities.
 
+- See my website for tools that I use and useful kit to carry: https://gibsonmarineelectrical.co.uk/tools.html
+
+
 ## Purpose
 - Keep essential references on removable media for ships, yards, and offshore sites.
 - Support troubleshooting and temporary local hosting without internet reliance.
