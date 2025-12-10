@@ -17,9 +17,6 @@ Offline toolkit for commissioning work when network access is limited: documents
 ## Software policy
 This repository only stores hard-to-find installers. Common tools are listed below for download elsewhere.
 
-## Portable apps
-Drop your portable app layout into `software/portable-apps/` to keep ready-to-run builds handy.
-
 ## Common tools (not mirrored here)
 - PuTTY
 - Cyberduck
