@@ -25,6 +25,6 @@ Offline pack for marine and offshore FAT/SAT work where connectivity is limited.
 - Share only the docs and tools needed for the specific vessel or site.
 
 ## Integrity and release
-- When binaries change, note source, version, and hash in commit messages for audit trails.
-- Large build outputs live under software/http-webserver-host; rebuild or prune before public distributions.
-- Complete the placeholders in LICENSE, CHANGELOG.md, CONTRIBUTING.md, and SECURITY.md before releasing to clients.
+- Binaries are tracked for auditability; note source, version, and hash when they change.
+- Large build outputs under software/http-webserver-host can be rebuilt or pruned before packaging.
+- Licensing and contribution details sit in the root placeholders; complete them before formal release.
