@@ -1,40 +1,32 @@
-# Offline-ready-commissioning-toolkit
-<<<<<<< Updated upstream
-Offline-ready commissioning toolkit
+# Offline-ready commissioning toolkit
 
-To be populated as and when time allows. This is a low priority currently. 
-=======
+Field-ready pack for marine and offshore electrical commissioning when network access is limited. Provides pinouts, protocol references, safety notes, commissioning aids, and a small set of offline installers and utilities.
 
-Offline toolkit for commissioning work when network access is limited: documents, maintenance cards, pinouts, reference material, and a curated set of hard-to-find installers.
+## Scope and use cases
+- Support FAT/SAT and ad-hoc troubleshooting without relying on the internet.
+- Keep electrical, networking, and safety references available on removable media.
+- Host files locally when required via the bundled Windows/.NET file browser.
 
-## Repo layout
-- docs/ - commissioning documents and maintenance cards
-- software/ - only hard-to-find installers kept offline
-- software/portable-apps/ - portable builds kept for quick drop-in use
-- pinouts/ - RS-232/422/485, NMEA0183, and CAN bus pinouts
-- reference/ - protocols, commissioning checks, signal examples, and flowcharts
+## Repository layout
+- docs/ – structured references.
+  - electrical/pinouts/ – CAN bus, NMEA0183, and RS-232/422/485 placeholders.
+  - 
+etworking/protocols/ – Modbus TCP/RTU, serial links, NMEA0183, IP basics.
+  - commissioning/ – checks and signal examples (placeholders ready to populate).
+  - system/flowcharts/ – flowchart placeholders.
+  - safety/ – fire extinguisher classes and ISO safety cheatsheet.
+- commissioning/ntp-time-update-windows/ – scripts/notes for updating Windows time sources during site work.
+- software/http-webserver-host/ – Windows/.NET local file browser for offline hosting.
+- software/offline-installers/ – hard-to-find installers (converter, ECDIS simulator, terminal).
+- software/legacy-browser/ – VBScript helper for legacy IE usage.
 
-## Software policy
-This repository only stores hard-to-find installers. Common tools are listed below for download elsewhere.
+## Operating guidance
+- Treat binaries as read-only and scan with current AV before field use.
+- Do not add common installers; keep only items that are difficult to source offline.
+- Do not store credentials, customer data, or sensitive configs.
+- When preparing media for site use, copy only the required tools plus relevant docs/checks.
 
-## Common tools (not mirrored here)
-- PuTTY
-- Cyberduck
-- FileZilla
-- WinSCP
-- Resilio Sync
-- Arduino CLI
-- VirtualBox
-
-## Recommended for offline commissioning on Windows (not mirrored here)
-- Wireshark + Npcap for packet capture/analysis
-- nmap for discovery and port scanning
-- RealTerm or Tera Term for serial console work
-- 7-Zip for handling archives
-- Notepad++ for quick config edits
-- Rufus for creating bootable media
-- Git for Windows with bundled OpenSSH for offline versioning
-
-[![Buy Me a Coffee](https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=â˜•&slug=gme.ltd&button_colour=FFDD00&font_colour=000000&font_family=Arial&outline_colour=000000&coffee_colour=ffffff)](https://buymeacoffee.com/gme.ltd)
-
-
+## Contribution and maintenance
+- Complete the placeholders in LICENSE, CHANGELOG.md, CONTRIBUTING.md, and SECURITY.md before distribution.
+- When adding binaries, record source, version, and hash in commit messages for audit trails.
+- Consider pruning/rebuilding large outputs in software/http-webserver-host if repository size becomes an issue.
