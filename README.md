@@ -1,32 +1,33 @@
-# Offline-ready commissioning toolkit
+ï»¿# Offline-ready commissioning toolkit
 
-Field-ready pack for marine and offshore electrical commissioning when network access is limited. Provides pinouts, protocol references, safety notes, commissioning aids, and a small set of offline installers and utilities.
+Marine-focused offline pack for FAT/SAT and yard/offshore electrical commissioning when connectivity is unreliable. Provides electrical and networking references, safety notes, commissioning aids, and a curated set of offline utilities.
 
-## Scope and use cases
-- Support FAT/SAT and ad-hoc troubleshooting without relying on the internet.
-- Keep electrical, networking, and safety references available on removable media.
-- Host files locally when required via the bundled Windows/.NET file browser.
+## Purpose
+- Keep critical references on removable media for ship, yard, and offshore sites.
+- Support FAT/SAT, troubleshooting, and temporary local hosting without internet.
+- Minimise footprint and avoid common installers; only retain hard-to-source tools.
 
 ## Repository layout
-- docs/ – structured references.
-  - electrical/pinouts/ – CAN bus, NMEA0183, and RS-232/422/485 placeholders.
+- docs/ â€“ structured references.
+  - electrical/pinouts/ â€“ CAN bus, NMEA0183, and RS-232/422/485 placeholders.
   - 
-etworking/protocols/ – Modbus TCP/RTU, serial links, NMEA0183, IP basics.
-  - commissioning/ – checks and signal examples (placeholders ready to populate).
-  - system/flowcharts/ – flowchart placeholders.
-  - safety/ – fire extinguisher classes and ISO safety cheatsheet.
-- commissioning/ntp-time-update-windows/ – scripts/notes for updating Windows time sources during site work.
-- software/http-webserver-host/ – Windows/.NET local file browser for offline hosting.
-- software/offline-installers/ – hard-to-find installers (converter, ECDIS simulator, terminal).
-- software/legacy-browser/ – VBScript helper for legacy IE usage.
+etworking/protocols/ â€“ Modbus TCP/RTU, serial links, NMEA0183, IP basics.
+  - commissioning/ â€“ checks and signal example placeholders.
+  - system/flowcharts/ â€“ flowchart placeholders.
+  - safety/ â€“ fire extinguisher classes and ISO safety cheat sheet.
+- commissioning/ntp-time-update-windows/ â€“ scripts and notes for refreshing Windows time sources on site.
+- software/http-webserver-host/ â€“ Windows/.NET local file browser for offline hosting.
+- software/offline-installers/ â€“ hard-to-find installers (converter, ECDIS simulator, terminal).
+- software/legacy-browser/ â€“ VBScript helper for legacy IE usage.
 
-## Operating guidance
-- Treat binaries as read-only and scan with current AV before field use.
-- Do not add common installers; keep only items that are difficult to source offline.
-- Do not store credentials, customer data, or sensitive configs.
-- When preparing media for site use, copy only the required tools plus relevant docs/checks.
+## Using this toolkit
+- Copy required docs and tools to removable media before travel.
+- Run software/http-webserver-host/file-web-browser.exe to serve files locally when needed.
+- Use commissioning/ntp-time-update-windows/ntp-update.bat only with admin approval and the accompanying notes.
+- Scan all binaries with current AV before use; keep executables read-only.
+- Do not add credentials, customer data, or sensitive configs.
 
-## Contribution and maintenance
-- Complete the placeholders in LICENSE, CHANGELOG.md, CONTRIBUTING.md, and SECURITY.md before distribution.
-- When adding binaries, record source, version, and hash in commit messages for audit trails.
-- Consider pruning/rebuilding large outputs in software/http-webserver-host if repository size becomes an issue.
+## Safety, integrity, and audit
+- Record source, version, and hash in commit messages when adding binaries.
+- Large build outputs exist in software/http-webserver-host; prune or rebuild for distributions as required.
+- Confirm licensing in LICENSE and complete CHANGELOG.md, CONTRIBUTING.md, and SECURITY.md before client release.
