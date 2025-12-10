@@ -23,8 +23,3 @@ Offline pack for marine and offshore FAT/SAT work where connectivity is limited.
 - Keep binaries read-only and scan with current AV before deployment.
 - Avoid adding common installers or any credentials/customer data.
 - Share only the docs and tools needed for the specific vessel or site.
-
-## Integrity and release
-- Binaries are tracked for auditability; note source, version, and hash when they change.
-- Large build outputs under software/http-webserver-host can be rebuilt or pruned before packaging.
-- Licensing and contribution details sit in the root placeholders; complete them before formal release.
