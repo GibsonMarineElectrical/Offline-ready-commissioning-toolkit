@@ -10,8 +10,7 @@ Marine-focused offline pack for FAT/SAT and yard/offshore electrical commissioni
 ## Repository layout
 - docs/ – structured references.
   - electrical/pinouts/ – CAN bus, NMEA0183, and RS-232/422/485 placeholders.
-  - 
-etworking/protocols/ – Modbus TCP/RTU, serial links, NMEA0183, IP basics.
+  - networking/protocols/ – Modbus TCP/RTU, serial links, NMEA0183, IP basics.
   - commissioning/ – checks and signal example placeholders.
   - system/flowcharts/ – flowchart placeholders.
   - safety/ – fire extinguisher classes and ISO safety cheat sheet.
