@@ -30,6 +30,6 @@ Then stop and start the service:
 net stop w32time && net start w32time
 
 
-The IPC will now point to the Router for it's time. 
+The PC will now point to the Router for it's time. 
 
 The time zone can be adjusted to reflect local time.
