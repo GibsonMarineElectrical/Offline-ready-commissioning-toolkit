@@ -1,0 +1,68 @@
+[build-console] Starting build at 26/11/2025 11:01:49.54 
+[build-console] Building console EXE... 
+122 INFO: PyInstaller: 6.17.0, contrib hooks: 2025.10
+122 INFO: Python: 3.13.5
+155 INFO: Platform: Windows-11-10.0.26100-SP0
+156 INFO: Python environment: C:\Python313
+156 INFO: wrote C:\Onedrive\OneDrive - Osbit\Documents\traffic\TrafficUsageConsole.spec
+160 INFO: Module search paths (PYTHONPATH):
+['C:\\Onedrive\\OneDrive - Osbit\\Documents\\traffic',
+ 'C:\\Python313\\python313.zip',
+ 'C:\\Python313\\DLLs',
+ 'C:\\Python313\\Lib',
+ 'C:\\Python313',
+ 'C:\\Users\\dan gibson\\AppData\\Roaming\\Python\\Python313\\site-packages',
+ 'C:\\Python313\\Lib\\site-packages',
+ 'C:\\Onedrive\\OneDrive - Osbit\\Documents\\traffic']
+433 INFO: checking Analysis
+433 INFO: Building Analysis because Analysis-00.toc is non existent
+433 INFO: Looking for Python shared library...
+433 INFO: Using Python shared library: C:\Python313\python313.dll
+433 INFO: Running Analysis Analysis-00.toc
+433 INFO: Target bytecode optimization level: 0
+433 INFO: Initializing module dependency graph...
+434 INFO: Initializing module graph hook caches...
+443 INFO: Analyzing modules for base_library.zip ...
+1038 INFO: Processing standard module hook 'hook-encodings.py' from 'C:\\Users\\dan gibson\\AppData\\Roaming\\Python\\Python313\\site-packages\\PyInstaller\\hooks'
+1472 INFO: Processing standard module hook 'hook-heapq.py' from 'C:\\Users\\dan gibson\\AppData\\Roaming\\Python\\Python313\\site-packages\\PyInstaller\\hooks'
+2431 INFO: Processing standard module hook 'hook-pickle.py' from 'C:\\Users\\dan gibson\\AppData\\Roaming\\Python\\Python313\\site-packages\\PyInstaller\\hooks'
+3294 INFO: Caching module dependency graph...
+3314 INFO: Analyzing C:\Onedrive\OneDrive - Osbit\Documents\traffic\pcap_usage_gui.py
+3343 INFO: Processing pre-find-module-path hook 'hook-tkinter.py' from 'C:\\Users\\dan gibson\\AppData\\Roaming\\Python\\Python313\\site-packages\\PyInstaller\\hooks\\pre_find_module_path'
+3343 INFO: TclTkInfo: initializing cached Tcl/Tk info...
+3545 INFO: Processing standard module hook 'hook-_tkinter.py' from 'C:\\Users\\dan gibson\\AppData\\Roaming\\Python\\Python313\\site-packages\\PyInstaller\\hooks'
+3589 INFO: Processing module hooks (post-graph stage)...
+3591 INFO: Processing standard module hook 'hook-_tkinter.py' from 'C:\\Users\\dan gibson\\AppData\\Roaming\\Python\\Python313\\site-packages\\PyInstaller\\hooks'
+3596 INFO: Performing binary vs. data reclassification (927 entries)
+3646 INFO: Looking for ctypes DLLs
+3649 INFO: Analyzing run-time hooks ...
+3649 INFO: Including run-time hook 'pyi_rth_inspect.py' from 'C:\\Users\\dan gibson\\AppData\\Roaming\\Python\\Python313\\site-packages\\PyInstaller\\hooks\\rthooks'
+3651 INFO: Including run-time hook 'pyi_rth__tkinter.py' from 'C:\\Users\\dan gibson\\AppData\\Roaming\\Python\\Python313\\site-packages\\PyInstaller\\hooks\\rthooks'
+3665 INFO: Creating base_library.zip...
+3686 INFO: Looking for dynamic libraries
+3780 INFO: Extra DLL search directories (AddDllDirectory): []
+3780 INFO: Extra DLL search directories (PATH): []
+3942 INFO: Warnings written to C:\Onedrive\OneDrive - Osbit\Documents\traffic\build\TrafficUsageConsole\warn-TrafficUsageConsole.txt
+3950 INFO: Graph cross-reference written to C:\Onedrive\OneDrive - Osbit\Documents\traffic\build\TrafficUsageConsole\xref-TrafficUsageConsole.html
+3968 INFO: checking PYZ
+3968 INFO: Building PYZ because PYZ-00.toc is non existent
+3968 INFO: Building PYZ (ZlibArchive) C:\Onedrive\OneDrive - Osbit\Documents\traffic\build\TrafficUsageConsole\PYZ-00.pyz
+4075 INFO: Building PYZ (ZlibArchive) C:\Onedrive\OneDrive - Osbit\Documents\traffic\build\TrafficUsageConsole\PYZ-00.pyz completed successfully.
+4089 INFO: checking PKG
+4089 INFO: Building PKG because PKG-00.toc is non existent
+4089 INFO: Building PKG (CArchive) TrafficUsageConsole.pkg
+6054 INFO: Building PKG (CArchive) TrafficUsageConsole.pkg completed successfully.
+6062 INFO: Bootloader C:\Users\dan gibson\AppData\Roaming\Python\Python313\site-packages\PyInstaller\bootloader\Windows-64bit-intel\run.exe
+6062 INFO: checking EXE
+6062 INFO: Building EXE because EXE-00.toc is non existent
+6062 INFO: Building EXE from EXE-00.toc
+6062 INFO: Copying bootloader EXE to C:\Onedrive\OneDrive - Osbit\Documents\traffic\dist\TrafficUsageConsole.exe
+6085 INFO: Copying icon to EXE
+6112 WARNING: Execution of 'CopyIcons' failed on attempt #1 / 20: error(5, 'EndUpdateResourceW', 'Access is denied.'). Retrying in 0.05 second(s)...
+6170 INFO: Copying 0 resources to EXE
+6170 INFO: Embedding manifest in EXE
+6195 INFO: Appending PKG archive to EXE
+6233 INFO: Fixing EXE headers
+6352 INFO: Building EXE from EXE-00.toc completed successfully.
+6360 INFO: Build complete! The results are available in: C:\Onedrive\OneDrive - Osbit\Documents\traffic\dist
+[build-console] Done. Output: dist\TrafficUsageConsole.exe 
