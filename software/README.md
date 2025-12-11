@@ -3,17 +3,17 @@
 Portable utilities for Gibson Marine Electrical LTD. All binaries are self-contained Windows EXEs living alongside their source.
 
 ## Apps
-- `GME-ModGuard/` — Modbus TCP poller with web UI (`GME-ModGuard.exe`).
-- `GME-NavSim/` — HDT/HDG NMEA generator with web UI (`GME-NavSim.exe`).
-- `GME-LinkGuard/` — LAN health (error/discard deltas) web UI (`GME-LinkGuard.exe`).
-- `GME-NavRec/` — NMEA UDP/TCP recorder with web UI (`GME-NavRec.exe`).
-- `GME-NetPulse/` — Network adapter status dashboard with IPs (`GME-NetPulse.exe`).
-- `GME-TrafficGuard/` — PCAP usage analyzer; includes web server `traffic_guard_web.py` and `GME-TrafficGuard.exe`.
-- `GME-Gateway/` — Read-only file browser HTTP server (`GME-Gateway.exe`).
-- `GME-LegacyBrowser/` — Legacy IE launcher script.
+- `GME-ModGuard/` - Modbus TCP poller with web UI (`GME-ModGuard.exe`).
+- `GME-NavSim/` - HDT/HDG NMEA generator with web UI (`GME-NavSim.exe`).
+- `GME-LinkGuard/` - LAN health (error/discard deltas) web UI (`GME-LinkGuard.exe`).
+- `GME-NavRec/` - NMEA UDP/TCP recorder with web UI (`GME-NavRec.exe`).
+- `GME-NetPulse/` - Network adapter status dashboard with IPs (`GME-NetPulse.exe`).
+- `GME-TrafficGuard/` - PCAP usage analyzer; includes web server `traffic_guard_web.py` and `GME-TrafficGuard.exe`.
+- `GME-Gateway/` - Read-only file browser HTTP server (`GME-Gateway.exe`).
+- `GME-LegacyBrowser/` - Legacy IE launcher script.
 
 ## Usage
-Run the EXE inside each app’s `dist/` (or root for GME-Gateway). Consoles print the localhost URL and LAN IPs. Most UIs are browser-based.
+Run the EXE inside each app's `dist/` (or root for GME-Gateway). Consoles print the localhost URL and LAN IPs. Most UIs are browser-based.
 
 ## Build notes
 - Python apps: PyInstaller `--onefile` build scripts inside each folder.
@@ -21,3 +21,7 @@ Run the EXE inside each app’s `dist/` (or root for GME-Gateway). Consoles prin
 
 ## Attribution
 Designed and built by Dan Gibson & Codex 2025 (Gibson Marine Electrical LTD).
+
+## Support
+
+<a href="https://www.buymeacoffee.com/gme.ltd"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=gme.ltd&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff" /></a>

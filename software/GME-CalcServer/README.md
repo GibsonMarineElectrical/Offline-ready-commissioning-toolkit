@@ -21,3 +21,7 @@ Outputs `dist\GME-CalcServer.exe` (portable, console visible). Use `--port` when
 ## Notes
 - State (equipment list) is persisted to `calc_state.json` next to the EXE/script.
 - PTP beacon is a best-effort JSON multicast on `224.0.1.129:320` for wiring/path checks; not a full PTP grandmaster.
+
+## Support
+
+<a href="https://www.buymeacoffee.com/gme.ltd"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=gme.ltd&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff" /></a>
