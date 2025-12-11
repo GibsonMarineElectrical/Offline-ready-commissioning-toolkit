@@ -19,3 +19,7 @@ Then open `http://127.0.0.1:8080`. Add `--minimize-console` if you want the cons
 pyinstaller --onefile --console --name GME-Commissioner commissioner_server.py
 ```
 Output lands in `dist\GME-Commissioner.exe`.
+
+## Support
+
+<a href="https://www.buymeacoffee.com/gme.ltd"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=gme.ltd&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff" /></a>

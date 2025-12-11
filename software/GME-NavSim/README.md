@@ -6,7 +6,7 @@ HDT/HDG generator with a local web UI. Defaults to `http://127.0.0.1:8081`.
 ```
 python nmea_gnss_sim.py
 ```
-You’ll be prompted for a port (or pass `--port 8081 --no-prompt`). Opens `http://127.0.0.1:<port>`.
+You'll be prompted for a port (or pass `--port 8081 --no-prompt`). Opens `http://127.0.0.1:<port>`.
 
 ## Features
 - Generates HDT and HDG at a configurable rate (Hz)
@@ -19,3 +19,7 @@ You’ll be prompted for a port (or pass `--port 8081 --no-prompt`). Opens `http
 ```
 pyinstaller --onefile --noconsole nmea_gnss_sim.py
 ```
+
+## Support
+
+<a href="https://www.buymeacoffee.com/gme.ltd"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=gme.ltd&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff" /></a>

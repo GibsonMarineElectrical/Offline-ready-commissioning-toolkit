@@ -21,4 +21,8 @@ Notes
 -----
 - Loopback-only binding for safety.
 - Watchdog restarts the server automatically.
-- Branding: “GME Gateway File Viewer” (Gibson Marine Electrical LTD).
+- Branding: "GME Gateway File Viewer" (Gibson Marine Electrical LTD).
+
+## Support
+
+<a href="https://www.buymeacoffee.com/gme.ltd"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=gme.ltd&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff" /></a>
