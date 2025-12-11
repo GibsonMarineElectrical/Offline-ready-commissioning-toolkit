@@ -14,6 +14,8 @@ then:
 
 w32tm /config /manualpeerlist:"NTP SERVER" /syncfromflags:manual /reliable:YES /update
 
+                                  ^^ update this
+
 then check the source IP has been updated with the command:
 
 w32tm /query /source

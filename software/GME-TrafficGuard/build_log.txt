@@ -1,0 +1,80 @@
+[build] Starting build at 11/12/2025 20:27:51.52 
+[build] Building portable EXE (windowed)... 
+C:\Users\Razer\AppData\Roaming\Python\Python313\site-packages\altgraph\__init__.py:142: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+169 INFO: PyInstaller: 6.12.0, contrib hooks: 2025.1
+169 INFO: Python: 3.13.1
+191 INFO: Platform: Windows-11-10.0.26100-SP0
+191 INFO: Python environment: C:\Python313
+192 INFO: wrote C:\Users\Razer\Documents\GitHub\Offline-ready-commissioning-toolkit\software\GME-TrafficGuard\GME-TrafficGuard.spec
+202 INFO: Module search paths (PYTHONPATH):
+['C:\\Users\\Razer\\Documents\\GitHub\\Offline-ready-commissioning-toolkit\\software\\GME-TrafficGuard',
+ 'C:\\Python313\\python313.zip',
+ 'C:\\Python313\\DLLs',
+ 'C:\\Python313\\Lib',
+ 'C:\\Python313',
+ 'C:\\Users\\Razer\\AppData\\Roaming\\Python\\Python313\\site-packages',
+ 'C:\\Python313\\Lib\\site-packages',
+ 'C:\\Users\\Razer\\AppData\\Roaming\\Python\\Python313\\site-packages\\setuptools\\_vendor',
+ 'C:\\Users\\Razer\\Documents\\GitHub\\Offline-ready-commissioning-toolkit\\software\\GME-TrafficGuard']
+C:\Users\Razer\AppData\Roaming\Python\Python313\site-packages\altgraph\__init__.py:142: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+581 INFO: checking Analysis
+581 INFO: Building Analysis because Analysis-00.toc is non existent
+581 INFO: Running Analysis Analysis-00.toc
+581 INFO: Target bytecode optimization level: 0
+581 INFO: Initializing module dependency graph...
+582 INFO: Initializing module graph hook caches...
+591 INFO: Analyzing modules for base_library.zip ...
+C:\Users\Razer\AppData\Roaming\Python\Python313\site-packages\altgraph\__init__.py:142: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+C:\Users\Razer\AppData\Roaming\Python\Python313\site-packages\altgraph\__init__.py:142: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+C:\Users\Razer\AppData\Roaming\Python\Python313\site-packages\altgraph\__init__.py:142: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+1514 INFO: Processing standard module hook 'hook-heapq.py' from 'C:\\Users\\Razer\\AppData\\Roaming\\Python\\Python313\\site-packages\\PyInstaller\\hooks'
+1774 INFO: Processing standard module hook 'hook-encodings.py' from 'C:\\Users\\Razer\\AppData\\Roaming\\Python\\Python313\\site-packages\\PyInstaller\\hooks'
+C:\Users\Razer\AppData\Roaming\Python\Python313\site-packages\altgraph\__init__.py:142: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+3430 INFO: Processing standard module hook 'hook-pickle.py' from 'C:\\Users\\Razer\\AppData\\Roaming\\Python\\Python313\\site-packages\\PyInstaller\\hooks'
+4620 INFO: Caching module dependency graph...
+4643 INFO: Looking for Python shared library...
+4647 INFO: Using Python shared library: C:\Python313\python313.dll
+4647 INFO: Analyzing C:\Users\Razer\Documents\GitHub\Offline-ready-commissioning-toolkit\software\GME-TrafficGuard\pcap_usage_gui.py
+4914 INFO: Processing pre-find-module-path hook 'hook-tkinter.py' from 'C:\\Users\\Razer\\AppData\\Roaming\\Python\\Python313\\site-packages\\PyInstaller\\hooks\\pre_find_module_path'
+4915 INFO: TclTkInfo: initializing cached Tcl/Tk info...
+5178 INFO: Processing standard module hook 'hook-_tkinter.py' from 'C:\\Users\\Razer\\AppData\\Roaming\\Python\\Python313\\site-packages\\PyInstaller\\hooks'
+5262 INFO: Processing module hooks (post-graph stage)...
+5265 INFO: Processing standard module hook 'hook-_tkinter.py' from 'C:\\Users\\Razer\\AppData\\Roaming\\Python\\Python313\\site-packages\\PyInstaller\\hooks'
+5271 INFO: Performing binary vs. data reclassification (927 entries)
+5375 INFO: Looking for ctypes DLLs
+5378 INFO: Analyzing run-time hooks ...
+5379 INFO: Including run-time hook 'pyi_rth__tkinter.py' from 'C:\\Users\\Razer\\AppData\\Roaming\\Python\\Python313\\site-packages\\PyInstaller\\hooks\\rthooks'
+5380 INFO: Including run-time hook 'pyi_rth_inspect.py' from 'C:\\Users\\Razer\\AppData\\Roaming\\Python\\Python313\\site-packages\\PyInstaller\\hooks\\rthooks'
+5400 INFO: Creating base_library.zip...
+5442 INFO: Looking for dynamic libraries
+5598 INFO: Extra DLL search directories (AddDllDirectory): []
+5598 INFO: Extra DLL search directories (PATH): []
+5835 INFO: Warnings written to C:\Users\Razer\Documents\GitHub\Offline-ready-commissioning-toolkit\software\GME-TrafficGuard\build\GME-TrafficGuard\warn-GME-TrafficGuard.txt
+5853 INFO: Graph cross-reference written to C:\Users\Razer\Documents\GitHub\Offline-ready-commissioning-toolkit\software\GME-TrafficGuard\build\GME-TrafficGuard\xref-GME-TrafficGuard.html
+5870 INFO: checking PYZ
+5870 INFO: Building PYZ because PYZ-00.toc is non existent
+5870 INFO: Building PYZ (ZlibArchive) C:\Users\Razer\Documents\GitHub\Offline-ready-commissioning-toolkit\software\GME-TrafficGuard\build\GME-TrafficGuard\PYZ-00.pyz
+6068 INFO: Building PYZ (ZlibArchive) C:\Users\Razer\Documents\GitHub\Offline-ready-commissioning-toolkit\software\GME-TrafficGuard\build\GME-TrafficGuard\PYZ-00.pyz completed successfully.
+6085 INFO: checking PKG
+6085 INFO: Building PKG because PKG-00.toc is non existent
+6085 INFO: Building PKG (CArchive) GME-TrafficGuard.pkg
+8221 INFO: Building PKG (CArchive) GME-TrafficGuard.pkg completed successfully.
+8229 INFO: Bootloader C:\Users\Razer\AppData\Roaming\Python\Python313\site-packages\PyInstaller\bootloader\Windows-64bit-intel\runw.exe
+8229 INFO: checking EXE
+8229 INFO: Building EXE because EXE-00.toc is non existent
+8229 INFO: Building EXE from EXE-00.toc
+8229 INFO: Copying bootloader EXE to C:\Users\Razer\Documents\GitHub\Offline-ready-commissioning-toolkit\software\GME-TrafficGuard\dist\GME-TrafficGuard.exe
+8281 INFO: Copying icon to EXE
+8325 INFO: Copying 0 resources to EXE
+8325 INFO: Embedding manifest in EXE
+8330 INFO: Appending PKG archive to EXE
+8402 INFO: Fixing EXE headers
+9887 INFO: Building EXE from EXE-00.toc completed successfully.
+9894 INFO: Build complete! The results are available in: C:\Users\Razer\Documents\GitHub\Offline-ready-commissioning-toolkit\software\GME-TrafficGuard\dist
+[build] Done. Output: dist\GME-TrafficGuard.exe 
