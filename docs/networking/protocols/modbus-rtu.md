@@ -2,7 +2,7 @@
 
 ## Basics
 - Serial: typically RS-485 (2-wire) or RS-232, 9600/19200/38400 8N1 or 8E1.
-- Framing: silent interval >= 3.5 char times between frames; CRC-16 (Modbus polynomial) at end (lo byte first, then hi byte).
+- Framing: silent interval >= 3.5 char times between frames; CRC-16 (Modbus polynomial) at end (lo byte first, followed by hi byte).
 
 ## Example (read holding registers)
 - Request (hex bytes): `01 03 00 6B 00 03 76 87`
@@ -18,4 +18,4 @@
 - Match baud/parity/stop bits both ends.
 - Use correct bias/termination on RS-485.
 - Observe 3.5 char silence between frames; avoid inter-char gaps >1.5 char.
-- CRC order: low byte then high byte.
+- CRC order: low byte first. High byte second.

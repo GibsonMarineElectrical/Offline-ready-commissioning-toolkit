@@ -1,27 +1,24 @@
 # GME LinkGuard (portable)
 
-Local web dashboard for adapter health on Windows. Polls `Get-NetAdapter` and `Get-NetAdapterStatistics` to show link state, Mbps, and error/discard deltas; optional periodic ping.
+Local dashboard for Windows network adapters. Polls `Get-NetAdapter` and `Get-NetAdapterStatistics` to show link state, negotiated speed, error counters, discard deltas. Optional periodic ping.
 
 ## Run
-Run `GME-LinkGuard.exe`.
+Start `GME-LinkGuard.exe`.
 
-If launched without arguments, you may be prompted for an HTTP port. For unattended use:
-```
+Open `http://127.0.0.1:8083`.
+
+PowerShell example:
+```powershell
 .\GME-LinkGuard.exe --port 8083 --no-prompt
 ```
-Then open `http://127.0.0.1:8083`.
 
-### Options
+## Options
 - `--port <n>`: HTTP port for the web UI (default `8083`)
 - `--host <ip>`: bind address (default `127.0.0.1`)
-- `--no-prompt`: don’t prompt for a port; use defaults/args
+- `--no-prompt`: do not prompt for a port; use defaults or args
 
 ## Features
-- Per-adapter status, link speed, TX/RX Mbps (from byte deltas)
-- Error/discard increment detection with event log
-- Periodic ping to a configurable target (basic latency sampling)
-- Pure stdlib; suitable for PyInstaller onefile
-
-## Support
-
-<a href="https://www.buymeacoffee.com/gme.ltd"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=gme.ltd&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff" /></a>
+- Per-adapter status plus link speed
+- TX/RX Mbps (based on byte deltas)
+- Error and discard increment detection with event log
+- Optional ping to a configurable target (basic latency sampling)

@@ -1,16 +1,11 @@
 # Protocol reference index
 
-Protocols covered here for commissioning and troubleshooting:
-- Modbus RTU
-- Modbus TCP
-- NMEA 0183
-- RS-232
-- RS-422
-- RS-485
-- IP (IPv4) basics for field devices
+Quick notes used for commissioning and troubleshooting. Each file is standalone.
 
-See individual files in this folder for examples and quick usage notes.
-
-## Support
-
-<a href="https://www.buymeacoffee.com/gme.ltd"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=gme.ltd&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff" /></a>
+- `ip-basics.md` – IPv4 addressing, basic test commands
+- `modbus-rtu.md` – serial framing, example requests
+- `modbus-tcp.md` – MBAP header, example requests
+- `nmea0183.md` – sentence format, example traffic
+- `rs232.md` – wiring basics, test strings
+- `rs422.md` – wiring basics, termination notes
+- `rs485.md` – wiring basics, biasing notes

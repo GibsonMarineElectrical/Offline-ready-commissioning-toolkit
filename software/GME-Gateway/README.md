@@ -1,23 +1,23 @@
-GME Gateway File Viewer
-=======================
+# GME Gateway File Viewer
 
-Read-only file browser served at `http://127.0.0.1:<port>`. Files are listed (not clickable); folders are navigable. Clipboard and right-click are blocked. Tray icon shows state; single-instance guard prevents duplicates.
+Read-only file listing served via a local web page.
 
-Run
----
-Run `GME-Gateway.exe` (double-click or from PowerShell). Defaults:
-- Root folder = current directory
-- Port = `1885`
+Behaviour:
+- Files are listed. Links are disabled.
+- Folder navigation is enabled.
+- Clipboard and right-click are blocked.
+- Single-instance guard prevents duplicates.
 
-On first run you’ll be prompted for the folder and port.
+## Run
+Start `GME-Gateway.exe`.
 
-Notes
------
-- Loopback-only binding for safety.
+Defaults:
+- Root folder: current directory
+- Port: `1885`
+
+First run prompts for the folder and port.
+
+## Network and logging
+- Binds to loopback only (`127.0.0.1`) for safety.
 - Watchdog restarts the server automatically.
-- Branding: "GME Gateway File Viewer" (Gibson Marine Electrical LTD).
-- Log file: `data-gateway.log` is written next to the EXE.
-
-## Support
-
-<a href="https://www.buymeacoffee.com/gme.ltd"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=gme.ltd&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff" /></a>
+- Writes `data-gateway.log` next to the EXE.

@@ -18,5 +18,5 @@
 ## Usage notes
 - Match symbol IDs to ISO 24409 (shipboard) or ISO 7010 equivalents; keep consistent across vessels/assets.
 - Pair symbols with brief text: hazard/requirement, consequence, action.
-- Maintain visibility: adequate size, contrast, and lighting; avoid obstructions.
+- Maintain visibility: adequate size, contrast, lighting; avoid obstructions.
 - Place fire and emergency signs at eye level and along access routes; repeat where direction changes.

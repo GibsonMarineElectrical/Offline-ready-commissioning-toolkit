@@ -1,1 +1,2 @@
-w32tm /resync /force 
+@echo off
+w32tm /resync /force

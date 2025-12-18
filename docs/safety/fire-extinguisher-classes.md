@@ -8,7 +8,7 @@
 - Class F: cooking oils/fats.
 - Electrical: energized electrical equipment (de-energize first when possible).
 
-## Extinguisher types, colours, and use
+## Extinguisher types: colour codes and use
 - Water (red): Class A; do not use on electrical, liquid, gas, or metal fires.
 - Foam (cream band): Class A, B; limited splash risk; avoid live electrics unless electrically rated (dielectric tested). Electrically rated AFFF/foam can be used on low-voltage gear per rating.
 - Dry powder/ABC (blue band): Class A, B, C, electrical; not for Class F; avoid confined spaces (visibility/respiratory); not for metal fires unless METAL powder; leaves residue on equipment.

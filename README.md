@@ -1,32 +1,30 @@
-﻿# Offline-ready commissioning toolkit
+# Offline-ready commissioning toolkit
 
-Offline pack for marine and offshore FAT/SAT work where connectivity is limited. Includes electrical and networking references, safety notes, commissioning aids, and a small set of offline utilities.
+Portable reference pack plus offline utilities used during marine and offshore FAT/SAT work when internet access is limited.
 
-- See my website for tools that I use and useful kit to carry: https://gibsonmarineelectrical.co.uk/tools.html
+> [!WARNING]
+> `GME-Commissioner` is a work in progress. It is not feature-complete. Interfaces may change.
+> `GME-CalcServer` is also in active development. Expect changes.
 
+## Quick start (Windows)
+1. Download the latest release ZIP.
+2. Extract it to a writable folder.
+3. Start the toolkit portal: `software/GME-Commissioner/GME-Commissioner.exe`.
+4. Open `http://127.0.0.1:8080` in a browser.
 
-## Purpose
-- Keep essential references on removable media for ships, yards, and offshore sites.
-- Support troubleshooting and temporary local hosting without internet reliance.
-- Stay lean by carrying only hard-to-source tools.
+## Repository layout
+| Path | Description |
+| --- | --- |
+| `docs/` | Protocol notes, safety references |
+| `commissioning/` | Site scripts, configuration notes |
+| `software/` | Portable Windows executables plus per-tool usage notes |
 
-## Contents
-- docs/ - structured references
-  - electrical/pinouts/ - CAN bus, NMEA0183, RS-232/422/485 pinouts
-  - networking/protocols/ - Modbus TCP/RTU, serial links, NMEA0183, IP basics
-  - commissioning/ - commissioning checklists and signal examples
-  - system/flowcharts/ - troubleshooting flowcharts
-  - safety/ - fire extinguisher classes and ISO safety cheat sheet
-- commissioning/ntp-time-update-windows/ - notes and batch for updating Windows time sources on site
-- software/http-webserver-host/ - Windows/.NET local file browser for offline hosting
-- software/offline-installers/ - hard-to-find installers (converter, ECDIS simulator, terminal)
-- software/legacy-browser/ - VBScript helper for legacy IE use
-
-## Field notes
-- Keep binaries read-only and scan with current AV before deployment.
-- Avoid adding common installers or any credentials/customer data.
-- Share only the docs and tools needed for the specific vessel or site.
+## Notes for site use
+- Keep the pack on removable media or a local project folder. Avoid `C:\Program Files\...` since several tools write logs or state files next to the EXE.
+- Several tools run a local web service. Review each tool `README.md` before use. Keep Windows Firewall rules tight.
+- Do not store credentials. Do not store client configuration or vessel data. Do not store packet captures or logs.
 
 ## Support
+Support is provided through the project team at Gibson Marine Electrical Ltd. Use the issue tracker where it is enabled.
 
-<a href="https://www.buymeacoffee.com/gme.ltd"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=gme.ltd&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff" /></a>
+[![Buy me a coffee](https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=&slug=gme.ltd&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff)](https://www.buymeacoffee.com/gme.ltd)

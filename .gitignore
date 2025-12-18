@@ -1,0 +1,22 @@
+# Runtime artefacts created by the portable tools
+*.log
+*.tmp
+*.bak
+
+# Tool state/config files (generated at runtime)
+*_state.json
+software/**/config.json
+
+# Tool output
+logs/
+software/**/logs/
+
+# Captures and exports
+*.pcap
+*.pcapng
+*.etl
+*.xlsx
+
+# OS files
+Thumbs.db
+.DS_Store
