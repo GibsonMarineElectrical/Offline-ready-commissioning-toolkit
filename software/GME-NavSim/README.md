@@ -3,10 +3,18 @@
 HDT/HDG generator with a local web UI. Defaults to `http://127.0.0.1:8081`.
 
 ## Run
+Run `GME-NavSim.exe`.
+
+If launched without arguments, you may be prompted for an HTTP port. For unattended use:
 ```
-python nmea_gnss_sim.py
+.\GME-NavSim.exe --port 8081 --no-prompt
 ```
-You'll be prompted for a port (or pass `--port 8081 --no-prompt`). Opens `http://127.0.0.1:<port>`.
+Then open `http://127.0.0.1:8081`.
+
+### Options
+- `--port <n>`: HTTP port for the web UI (default `8081`)
+- `--host <ip>`: bind address (default `127.0.0.1`)
+- `--no-prompt`: don’t prompt for a port; use defaults/args
 
 ## Features
 - Generates HDT and HDG at a configurable rate (Hz)
@@ -14,11 +22,6 @@ You'll be prompted for a port (or pass `--port 8081 --no-prompt`). Opens `http:/
 - Custom talker ID (e.g., HE/GP/GN)
 - Outputs to TCP (default 20220) and/or UDP (default 127.0.0.1:10110)
 - Start/stop and live preview from the browser; simple event log
-
-## One-file build (optional)
-```
-pyinstaller --onefile --noconsole nmea_gnss_sim.py
-```
 
 ## Support
 

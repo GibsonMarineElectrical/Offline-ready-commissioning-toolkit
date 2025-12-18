@@ -6,19 +6,26 @@ Heimdall-style landing page that keeps GME tools separate but provides one web U
 - NTP query + optional PTP-style multicast beacon (path test only)
 - Enclosure heat check + PTC selector
 
-Other GME apps are listed with their EXE/script paths for manual launch (ModGuard, NavSim, NavRec, LinkGuard, NetPulse, TrafficGuard Web, Gateway, CalcServer).
+Other GME apps are listed for manual launch (keeps tools separate).
 
 ## Run
-```
-python commissioner_server.py --port 8080
-```
-Then open `http://127.0.0.1:8080`. Add `--minimize-console` if you want the console minimized after launch.
+Run `GME-Commissioner.exe` and then open `http://127.0.0.1:8080`.
 
-## Build onefile (optional)
+PowerShell example:
 ```
-pyinstaller --onefile --console --name GME-Commissioner commissioner_server.py
+.\GME-Commissioner.exe --port 8080
 ```
-Output lands in `dist\GME-Commissioner.exe`.
+
+### Options
+- `--port <n>`: HTTP port for the portal (default `8080`)
+- `--minimize-console`: minimize after launch
+
+## Files created at runtime
+- `commissioner_state.json` is created/updated next to the EXE to persist state.
+
+## Notes
+- The portal binds to `0.0.0.0` (LAN-accessible). If Windows Firewall prompts, allow only what you need.
+- Some pages may show example paths referencing `dist/` from older builds. In this repo, the EXEs live directly in each tool folder.
 
 ## Support
 

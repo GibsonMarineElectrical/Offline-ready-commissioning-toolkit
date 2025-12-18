@@ -1,23 +1,31 @@
 # GME Commissioning Toolkit (Portable)
 
-Portable utilities for Gibson Marine Electrical LTD. All binaries are self-contained Windows EXEs living alongside their source.
+This `software/` folder is intentionally **binaries + docs only**:
+- Portable Windows executables (`*.exe`)
+- Per-tool `README.md` usage notes
 
-## Apps
-- `GME-ModGuard/` - Modbus TCP poller with web UI (`GME-ModGuard.exe`).
-- `GME-NavSim/` - HDT/HDG NMEA generator with web UI (`GME-NavSim.exe`).
-- `GME-LinkGuard/` - LAN health (error/discard deltas) web UI (`GME-LinkGuard.exe`).
-- `GME-NavRec/` - NMEA UDP/TCP recorder with web UI (`GME-NavRec.exe`).
-- `GME-NetPulse/` - Network adapter status dashboard with IPs (`GME-NetPulse.exe`).
-- `GME-TrafficGuard/` - PCAP usage analyzer; includes web server `traffic_guard_web.py` and `GME-TrafficGuard.exe`.
-- `GME-Gateway/` - Read-only file browser HTTP server (`GME-Gateway.exe`).
-- `GME-LegacyBrowser/` - Legacy IE launcher script.
+Source code and build scripts are kept in a separate private repository.
 
-## Usage
-Run the EXE inside each app's `dist/` (or root for GME-Gateway). Consoles print the localhost URL and LAN IPs. Most UIs are browser-based.
+## How it works
+Most tools start a small local web server:
+1. Run the `*.exe`
+2. Open the shown URL (usually `http://127.0.0.1:<port>`) in your browser
 
-## Build notes
-- Python apps: PyInstaller `--onefile` build scripts inside each folder.
-- GME-Gateway: existing EXE stored here; .NET SDK required to republish if needed.
+Several tools create small files next to the EXE at runtime (logs/config/state). Keep the toolkit in a writable folder (not `C:\Program Files\...`).
+
+## Included tools
+- `GME-Commissioner/GME-Commissioner.exe` – Portal/landing page (links the toolkit together).
+- `GME-CalcServer/GME-CalcServer.exe` – Commissioning calculators + NTP/PTP path check + soak tests.
+- `GME-ModbusGuard/GME-ModGuard.exe` – Modbus TCP poller with a built-in web dashboard.
+- `GME-NavSim/GME-NavSim.exe` – NMEA0183 HDT/HDG heading generator with web UI.
+- `GME-NavRec/GME-NavRec.exe` – NMEA0183 UDP/TCP recorder with web UI.
+- `GME-LinkGuard/GME-LinkGuard.exe` – Adapter link/error dashboard + optional ping.
+- `GME-NetPulse/GME-NetPulse.exe` – Network adapter/IP dashboard.
+- `GME-TrafficGuard/GME-TrafficGuard.exe` – PCAP usage analyzer (GUI).
+- `GME-Gateway/GME-Gateway.exe` – Loopback-only read-only file browser (web UI).
+
+## Offline installers
+`offline-installers/` contains additional installer EXEs used alongside the toolkit.
 
 ## Attribution
 Designed and built by Dan Gibson & Codex 2025 (Gibson Marine Electrical LTD).

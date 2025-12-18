@@ -3,22 +3,24 @@
 Minimal Modbus TCP poller with a built-in local web dashboard.
 
 ## Run
+Run `GME-ModGuard.exe`.
+
+If launched without arguments, you may be prompted for an HTTP port. For unattended use:
 ```
-python modbus_multiwatch.py
+.\GME-ModGuard.exe --port 8082 --no-prompt
 ```
-You'll be prompted for a port (or pass `--port 8082 --no-prompt`). Opens `http://127.0.0.1:<port>`.
+Then open `http://127.0.0.1:8082`.
+
+### Options
+- `--port <n>`: HTTP port for the web UI (default `8082`)
+- `--host <ip>`: bind address (default `127.0.0.1`)
+- `--no-prompt`: don’t prompt for a port; use defaults/args
 
 ## Features
 - Add multiple targets (IP/port/unit id/start/count/interval)
 - Reads holding registers (function 3) continuously
 - Shows live values, error counts, and rolling event log
-- Persists targets to `config.json` in this folder
-
-## Building a single-file EXE (optional)
-PyInstaller example:
-```
-pyinstaller --onefile --noconsole modbus_multiwatch.py
-```
+- Persists targets to `config.json` (created when you add targets)
 
 ## Support
 

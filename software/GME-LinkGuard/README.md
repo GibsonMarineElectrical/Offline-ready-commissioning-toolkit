@@ -3,21 +3,24 @@
 Local web dashboard for adapter health on Windows. Polls `Get-NetAdapter` and `Get-NetAdapterStatistics` to show link state, Mbps, and error/discard deltas; optional periodic ping.
 
 ## Run
+Run `GME-LinkGuard.exe`.
+
+If launched without arguments, you may be prompted for an HTTP port. For unattended use:
 ```
-python lan_port_stress.py
+.\GME-LinkGuard.exe --port 8083 --no-prompt
 ```
-You'll be prompted for a port (or pass `--port 8083 --no-prompt`). Open `http://127.0.0.1:<port>`.
+Then open `http://127.0.0.1:8083`.
+
+### Options
+- `--port <n>`: HTTP port for the web UI (default `8083`)
+- `--host <ip>`: bind address (default `127.0.0.1`)
+- `--no-prompt`: don’t prompt for a port; use defaults/args
 
 ## Features
 - Per-adapter status, link speed, TX/RX Mbps (from byte deltas)
 - Error/discard increment detection with event log
 - Periodic ping to a configurable target (basic latency sampling)
 - Pure stdlib; suitable for PyInstaller onefile
-
-## Build onefile (optional)
-```
-pyinstaller --onefile --noconsole lan_port_stress.py
-```
 
 ## Support
 
