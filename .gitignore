@@ -7,6 +7,11 @@
 *.exe
 *.EXE
 
+# Build artefacts and dependency caches
+**/.nuget/
+software/**/build/
+software/**/dist/
+
 # Tool state/config files (generated at runtime)
 *_state.json
 software/**/config.json
