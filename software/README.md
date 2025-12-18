@@ -32,4 +32,4 @@ Several tools expose a local web UI. Some bind to `127.0.0.1` by default. Others
 Designed and Built by Dan Gibson with assistance from "Dex" 2025 (Gibson Marine Electrical LTD).
 
 ## Third-party installers
-`Other public software/` contains third-party executables used on some projects. Confirm redistribution terms before sharing outside your organisation.
+`Other public software/` contains third-party executables used on some projects.
