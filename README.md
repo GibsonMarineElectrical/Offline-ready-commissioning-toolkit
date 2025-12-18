@@ -25,6 +25,6 @@ Portable reference pack plus offline utilities used during marine and offshore F
 - Do not store credentials. Do not store client configuration or vessel data. Do not store packet captures or logs.
 
 ## Support
-Support is provided through the project team at Gibson Marine Electrical Ltd. Use the issue tracker where it is enabled.
+No support is provided for this repository.
 
 [![Buy me a coffee](https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=&slug=gme.ltd&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff)](https://www.buymeacoffee.com/gme.ltd)

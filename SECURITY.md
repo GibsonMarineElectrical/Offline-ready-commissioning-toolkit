@@ -3,7 +3,7 @@
 This repository includes executable tools used during commissioning. Treat it as operational tooling.
 
 ## Reporting a vulnerability
-Report security issues through your Gibson Marine Electrical project contact. Do not open a public issue for security reports.
+Do not open public issues for security reports. Use the agreed channel for your project.
 
 ## Handling guidance
 - Scan release ZIPs with current AV before site deployment.
