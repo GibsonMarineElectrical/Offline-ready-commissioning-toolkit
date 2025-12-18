@@ -2,8 +2,11 @@
 
 *.md text eol=lf
 *.yml text eol=lf
+*.toml text eol=lf
 *.ps1 text eol=lf
 *.bat text eol=crlf
+
+.gitignore text eol=lf
 
 *.exe binary
 *.docx binary

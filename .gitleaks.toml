@@ -1,0 +1,11 @@
+title = "Offline-ready commissioning toolkit"
+
+[allowlist]
+description = "Ignore binary files and release artefacts"
+paths = [
+  '''(?i)\.docx$''',
+  '''(?i)\.exe$''',
+  '''(?i)\.pcap$''',
+  '''(?i)\.pcapng$''',
+  '''(?i)\.xlsx$''',
+]

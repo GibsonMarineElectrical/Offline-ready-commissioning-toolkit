@@ -3,6 +3,10 @@
 *.tmp
 *.bak
 
+# Executables (distributed via GitHub Releases)
+*.exe
+*.EXE
+
 # Tool state/config files (generated at runtime)
 *_state.json
 software/**/config.json

@@ -1,12 +1,14 @@
 # Third-party notices
 
-This repository includes third-party executables under `software/Other public software/`.
+Some projects use third-party executables alongside this toolkit.
+
+These binaries are not committed to this repository. If they are required, provide them via an internal distribution channel or as separate GitHub Release assets.
 
 These files remain the property of their respective owners. Use is subject to their licence terms.
 
-Included items:
-- `software/Other public software/converter/CONVERT.EXE`
-- `software/Other public software/ecdis-simulator/EcdisSim.exe`
-- `software/Other public software/terminal/Terminal 2014.exe`
+Common items:
+- `software/other-public-software/converter/CONVERT.EXE`
+- `software/other-public-software/ecdis-simulator/EcdisSim.exe`
+- `software/other-public-software/terminal/terminal-2014.exe`
 
-Confirm redistribution rights before publishing this repository publicly. Remove these files if permission is not in place.
+Confirm redistribution rights before publishing this repository publicly.

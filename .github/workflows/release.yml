@@ -13,6 +13,7 @@ on:
 
 env:
   RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref_name }}
+  KEEP_LATEST_RELEASES: 5
 
 permissions:
   contents: write
@@ -37,6 +38,7 @@ jobs:
             docs \
             commissioning \
             software/GME-* \
+            software/other-public-software \
             README.md \
             CHANGELOG.md \
             LICENSE \
@@ -44,17 +46,9 @@ jobs:
             SUPPORT.md \
             THIRD_PARTY_NOTICES.md \
             .gitattributes \
-            .gitignore \
-            -x "**/.gitkeep"
+            .gitignore
 
           sha256sum "$ZIP" > "${ZIP}.sha256"
-
-      - name: Collect EXEs for release assets
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p release-assets
-          find software -maxdepth 2 -type f -name "*.exe" -path "software/GME-*/*" -exec cp -v "{}" release-assets/ \;
 
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v2
@@ -65,4 +59,26 @@ jobs:
           files: |
             offline-ready-commissioning-toolkit_${{ env.RELEASE_TAG }}.zip
             offline-ready-commissioning-toolkit_${{ env.RELEASE_TAG }}.zip.sha256
-            release-assets/*.exe
+
+      - name: Prune older releases
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          KEEP="${KEEP_LATEST_RELEASES}"
+
+          echo "Keeping the latest ${KEEP} releases. Deleting older releases."
+
+          ids=$(gh api "repos/${GITHUB_REPOSITORY}/releases" --paginate -q '.[].id')
+
+          count=0
+          for id in ${ids}; do
+            count=$((count + 1))
+            if [ "${count}" -le "${KEEP}" ]; then
+              continue
+            fi
+
+            echo "Deleting release id=${id}"
+            gh api -X DELETE "repos/${GITHUB_REPOSITORY}/releases/${id}"
+          done

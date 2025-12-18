@@ -12,6 +12,8 @@ Portable reference pack plus offline utilities used during marine and offshore F
 3. Start the toolkit portal: `software/GME-Commissioner/GME-Commissioner.exe`.
 4. Open `http://127.0.0.1:8080` in a browser.
 
+Executables are distributed via GitHub Releases. They are not committed to this repository.
+
 ## Repository layout
 | Path | Description |
 | --- | --- |
