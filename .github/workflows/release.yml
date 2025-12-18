@@ -50,6 +50,25 @@ jobs:
 
           sha256sum "$ZIP" > "${ZIP}.sha256"
 
+      - name: Download executables from latest release (if available)
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p release-assets
+
+          latest_tag="$(gh release list --limit 20 --json tagName --jq '.[].tagName' | grep -v "^${RELEASE_TAG}$" | head -n 1 || true)"
+
+          if [ -z "${latest_tag}" ]; then
+            echo "No previous release found. Skipping executable download."
+            exit 0
+          fi
+
+          echo "Downloading executables from ${latest_tag}"
+          gh release download "${latest_tag}" -p "*.exe" -D release-assets || true
+          gh release download "${latest_tag}" -p "*.EXE" -D release-assets || true
+
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v2
         with:
@@ -60,6 +79,22 @@ jobs:
             offline-ready-commissioning-toolkit_${{ env.RELEASE_TAG }}.zip
             offline-ready-commissioning-toolkit_${{ env.RELEASE_TAG }}.zip.sha256
 
+      - name: Upload executables (if any)
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+
+          files=(release-assets/*.exe release-assets/*.EXE)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No executables to upload."
+            exit 0
+          fi
+
+          gh release upload "${RELEASE_TAG}" "${files[@]}" --clobber
+
       - name: Prune older releases
         shell: bash
         env:
@@ -68,17 +103,26 @@ jobs:
           set -euo pipefail
           KEEP="${KEEP_LATEST_RELEASES}"
 
-          echo "Keeping the latest ${KEEP} releases. Deleting older releases."
+          echo "Keeping the latest ${KEEP} versioned releases. Deleting older versioned releases."
 
-          ids=$(gh api "repos/${GITHUB_REPOSITORY}/releases" --paginate -q '.[].id')
+          releases=$(gh api "repos/${GITHUB_REPOSITORY}/releases" --paginate -q '.[] | [.id, .tag_name] | @tsv')
 
           count=0
-          for id in ${ids}; do
+          while IFS=$'\t' read -r id tag; do
+            if [ -z "${id}" ] || [ -z "${tag}" ]; then
+              continue
+            fi
+
+            case "${tag}" in
+              v*) ;;
+              *) continue ;;
+            esac
+
             count=$((count + 1))
             if [ "${count}" -le "${KEEP}" ]; then
               continue
             fi
 
-            echo "Deleting release id=${id}"
+            echo "Deleting release tag=${tag} id=${id}"
             gh api -X DELETE "repos/${GITHUB_REPOSITORY}/releases/${id}"
-          done
+          done <<< "${releases}"
