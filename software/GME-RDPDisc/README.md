@@ -2,6 +2,8 @@
 
 Lightweight Windows background monitor that clears abandoned RDP sessions before they starve headless systems of RAM. Designed for kiosks, IPCs, remote support servers, and other unattended hosts bundled with the Offline-ready commissioning toolkit.
 
+`GME-RDPDisc/` ships the scheduled task that polls `qwinsta`, journals memory snapshots, and uses `rwinsta` to release sessions that stay disconnected past the grace window. It has been verified stable for three straight days on a headless Windows 10 build, consistently recovering roughly 1024 MB for every abandoned session and returning available RAM to ~4.9 GB after each cleanup.
+
 ## What problem it solves
 - Disconnected (`Disc`) RDP sessions stay logged in, continue to own ~1024 MB of RAM per user on the reference Windows 10 headless build, and accumulate indefinitely.
 - Manual cleanup via `rwinsta` is error-prone and rarely executed.

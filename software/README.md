@@ -25,9 +25,6 @@ Open `http://127.0.0.1:8080`.
 | GME TrafficGuard | `GME-TrafficGuard/` | N/A | N/A | PCAP usage analyser (GUI). |
 | GME Gateway | `GME-Gateway/` | `1885` | `127.0.0.1` | Loopback-only file browser for offline hosting. |
 
-## RDP Disconnect Watcher
-`GME-RDPDisc/` ships the RDP Disconnect Watcher, a scheduled task that polls `qwinsta`, journals memory snapshots, and uses `rwinsta` to release RDP sessions that stay disconnected past a grace window. Verified stable for three days on a headless Windows 10 build, recovering roughly 1024 MB per abandoned session and returning available RAM to ~4.9 GB after each cleanup. See `GME-RDPDisc/README.md` for installer menu details, configuration knobs, commissioning test steps, and log samples.
-
 ## Runtime files
 Most tools create small files next to the EXE. These include logs, config, saved state. Keep the toolkit in a writable location.
 
