@@ -1,0 +1,1 @@
+cmd /c systeminfo | findstr /C:"Total Physical Memory" /C:"Available Physical Memory"
