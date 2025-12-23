@@ -1,15 +1,15 @@
 # RDP Disconnect Watcher (GME-RDPDisc)
 
-Lightweight Windows background monitor that clears abandoned RDP sessions before they starve headless systems of RAM. Designed for kiosks, IPCs, remote support servers, and other unattended hosts bundled with the Offline-ready commissioning toolkit.
+Lightweight Windows background monitor that clears abandoned RDP sessions before they starve headless systems of RAM. Designed for kiosks, IPCs, remote support servers and other unattended hosts bundled with the Offline-ready commissioning toolkit.
 
-`GME-RDPDisc/` ships the scheduled task that polls `qwinsta`, journals memory snapshots, and uses `rwinsta` to release sessions that stay disconnected past the grace window. It has been verified stable for three straight days on a headless Windows 10 build, consistently recovering roughly 1024 MB for every abandoned session and returning available RAM to ~4.9 GB after each cleanup.
+`GME-RDPDisc/` ships the scheduled task that polls `qwinsta`, journals memory snapshots and uses `rwinsta` to release sessions that stay disconnected past the grace window. It has been verified stable for three straight days on a headless Windows 10 build, consistently recovering roughly 1024 MB for every abandoned session and returning available RAM to ~4.9 GB after each cleanup.
 
 ## What problem it solves
-- Disconnected (`Disc`) RDP sessions stay logged in, continue to own ~1024 MB of RAM per user on the reference Windows 10 headless build, and accumulate indefinitely.
+- Disconnected (`Disc`) RDP sessions stay logged in, continue to own ~1024 MB of RAM per user on the reference Windows 10 headless build and accumulate indefinitely.
 - Manual cleanup via `rwinsta` is error-prone and rarely executed.
 - Excess abandoned sessions can drive memory pressure and instability over time.
 
-The watcher polls sessions, applies a grace period, and resets only stale user sessions. Each cleanup is logged together with a memory snapshot for auditing.
+The watcher polls sessions, applies a grace period and resets only stale user sessions. Each cleanup is logged together with a memory snapshot for auditing.
 
 ## How it works
 1. **Session monitoring**  
@@ -28,8 +28,8 @@ The watcher polls sessions, applies a grace period, and resets only stale user s
 ## Files in this folder
 | File | Purpose |
 | --- | --- |
-| `RDPDisc-install.bat` | Text-based installer menu with shortcuts for writing the watcher, installing/updating the scheduled task, running dry runs, and starting/stopping the task. |
-| `RdpDiscinstaller.ps1` | Core installer used by the batch menu. Handles folder creation, watcher generation, scheduled task registration, log rotation settings, and one-time test runs. |
+| `RDPDisc-install.bat` | Text-based installer menu with shortcuts for writing the watcher, installing/updating the scheduled task, running dry runs and starting/stopping the task. |
+| `RdpDiscinstaller.ps1` | Core installer used by the batch menu. Handles folder creation, watcher generation, scheduled task registration, log rotation settings and one-time test runs. |
 | `SSH cmd Memory on RDP.txt` | Handy command snippet to remotely query RAM usage via SSH (`cmd /c systeminfo | findstr ...`). |
 
 The installer writes the worker script to `C:\Scripts\RdpDiscWatch.ps1` and creates the log at `C:\Scripts\Logs\rdp_disconnect_watch.log`.
@@ -38,14 +38,14 @@ The installer writes the worker script to `C:\Scripts\RdpDiscWatch.ps1` and crea
 1. **Run `RDPDisc-install.bat`**  
    Launch normally to explore, or choose option 12 to relaunch elevated when you need to install/start/stop the scheduled task.
 2. **Typical workflow**  
-   - Option 5 ("Full install") creates folders, writes the watcher, registers the scheduled task, and starts it immediately.
+   - Option 5 ("Full install") creates folders, writes the watcher, registers the scheduled task and starts it immediately.
    - Option 6 ("One-time test run") executes the watcher with `ForceCleanup + RunOnce`, immediately clearing all disconnected sessions and logging RAM usage for commissioning.
 3. **Scheduled task details**  
    - Task name: `RDP Disconnect Watcher`  
    - Runs as the `SYSTEM` account at boot, hidden, highest privileges.  
    - Command: `powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "C:\Scripts\RdpDiscWatch.ps1" ...`
 
-You can rerun option 2 to rewrite the watcher after editing defaults in the installer, rerun option 3/4 to update the task definition, and option 9 to remove it entirely.
+You can rerun option 2 to rewrite the watcher after editing defaults in the installer, rerun option 3/4 to update the task definition and option 9 to remove it entirely.
 
 ## Configuration knobs
 All of the following parameters are exposed in `RdpDiscinstaller.ps1`:
@@ -86,7 +86,7 @@ Each `TIMEOUT` reflects a session that remained disconnected past the grace peri
 
 ## Safety principles
 - Only user sessions with non-zero IDs in the `Disc` state are touched.
-- Service sessions, console session 0, and active sessions are skipped.
+- Service sessions, console session 0 and active sessions are skipped.
 - All destructive actions (`rwinsta`) and errors are logged.
 - Installation is deliberate: no scheduled task is created or altered unless an installer option explicitly requests it.
 
