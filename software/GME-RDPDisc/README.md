@@ -68,9 +68,6 @@ Change defaults by editing the parameters passed within the batch menu or invoki
 
 ### Sample log excerpt
 ```
-[12/19/2025 11:01:14 AM] TIMEOUT: User=Administrator ID=3 -> rwinsta
-[12/19/2025 11:01:14 AM] Total Physical Memory:     7,934 MB
-[12/19/2025 11:01:14 AM] Available Physical Memory: 4,942 MB
 [12/19/2025 2:58:24 PM] TIMEOUT: User=Administrator ID=4 -> rwinsta
 [12/19/2025 2:58:24 PM] Total Physical Memory:     7,934 MB
 [12/19/2025 2:58:24 PM] Available Physical Memory: 4,899 MB
