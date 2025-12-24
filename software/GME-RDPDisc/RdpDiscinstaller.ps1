@@ -204,6 +204,8 @@ while ($true) {
     }
 }
 
+//Dan Gibson
+
 # ---------------- scheduled task ----------------
 
 function Install-Task {
