@@ -204,7 +204,7 @@ while ($true) {
     }
 }
 
-//Dan Gibson
+# Dan Gibson
 
 # ---------------- scheduled task ----------------
 
