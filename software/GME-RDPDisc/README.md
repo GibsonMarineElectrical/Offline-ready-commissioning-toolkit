@@ -1,3 +1,5 @@
+# ISSUE RAISED > DO NOT USE YET
+
 # RDP Disconnect Watcher (GME-RDPDisc)
 
 Lightweight Windows background monitor that clears abandoned RDP sessions before they starve headless systems of RAM. Designed for kiosks, IPCs, remote support servers and other unattended hosts bundled with the Offline-ready commissioning toolkit.
