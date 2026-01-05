@@ -31,6 +31,19 @@ Set-StrictMode -Version Latest
 
 $Watcher = Join-Path $ScriptsDir "RdpDiscWatch.ps1"
 
+# ---------------- EASY CONFIG (edit here) ----------------
+# RAM gate: enforcement only when Available RAM is BELOW this threshold (MB)
+$RamThresholdMB = 2048
+
+# Default deny (never reset these users)
+$DenyUsers = @("Administrator", "Partrac_admin")
+
+# Allowlist-only enforcement:
+# Only these users are eligible for cleanup.
+# If empty, watcher runs in AUDIT-ONLY mode (no rwinsta except ForceCleanup test runs).
+$AllowUsers = @()
+# ---------------------------------------------------------
+
 # ---------------- helpers ----------------
 
 function Say([string]$msg) {
@@ -64,8 +77,15 @@ param(
     [string]$LogFileName = "rdp_disconnect_watch.log",
     [int]$PollSeconds = 60,
     [int]$DisconnectGraceMinutes = 10,
+
+    # Policy
+    [int]$RamThresholdMB = 2048,
+    [string[]]$AllowUsers = @(),
+    [string[]]$DenyUsers = @("Administrator","Partrac_admin"),
+
     [switch]$ForceCleanup,
     [switch]$RunOnce,
+
     [int]$MaxLogSizeMB = 5,
     [int]$MaxArchives = 10
 )
@@ -127,8 +147,34 @@ function Get-QwinstaSessions {
     return $sessions
 }
 
+function Get-AvailableRamMB {
+    # Win32_OperatingSystem FreePhysicalMemory is KB
+    try {
+        $os = Get-CimInstance -ClassName Win32_OperatingSystem -ErrorAction Stop
+        return [int][math]::Floor(($os.FreePhysicalMemory / 1024))
+    } catch {
+        return -1
+    }
+}
+
 function Get-SystemInfoMemoryLines {
     & cmd /c 'systeminfo | findstr /C:"Total Physical Memory" /C:"Available Physical Memory"' 2>$null
+}
+
+function Is-DeniedUser([string]$u) {
+    if ([string]::IsNullOrWhiteSpace($u)) { return $true }
+    foreach ($d in $DenyUsers) {
+        if ($u -ieq $d) { return $true }
+    }
+    return $false
+}
+
+function Is-AllowedUser([string]$u) {
+    if ($AllowUsers -eq $null -or $AllowUsers.Count -eq 0) { return $false }
+    foreach ($a in $AllowUsers) {
+        if ($u -ieq $a) { return $true }
+    }
+    return $false
 }
 
 $disconnectStart = @{}
@@ -138,52 +184,134 @@ $grace = if ($ForceCleanup.IsPresent) {
     New-TimeSpan -Minutes $DisconnectGraceMinutes
 }
 
-Write-LogLine ("[{0}] START: Poll={1}s Grace={2} ForceCleanup={3} RunOnce={4}" -f `
-    (Get-Date), $PollSeconds, $grace, $ForceCleanup.IsPresent, $RunOnce.IsPresent)
+$enforcementEnabled =
+    ($ForceCleanup.IsPresent) -or (
+        ($RamThresholdMB -gt 0) -and
+        ($AllowUsers -ne $null) -and
+        ($AllowUsers.Count -gt 0)
+    )
+
+Write-LogLine ("[{0}] START: Poll={1}s GraceMin={2} RamThresholdMB={3} EnforcementEnabled={4} ForceCleanup={5} RunOnce={6} AllowUsers={7} DenyUsers={8}" -f `
+    (Get-Date), $PollSeconds, $DisconnectGraceMinutes, $RamThresholdMB, $enforcementEnabled, $ForceCleanup.IsPresent, $RunOnce.IsPresent, `
+    (($AllowUsers -join ",") -replace '\s+$',''), (($DenyUsers -join ",") -replace '\s+$','')
+)
 
 while ($true) {
     try {
         Rotate-LogIfNeeded
         $now = Get-Date
         $sessions = Get-QwinstaSessions
-        $seen = @{}
+
+        $availMB = Get-AvailableRamMB
+
+        # Log the RAM gate decision context every loop (audit trail)
+        if ($availMB -ge 0) {
+            Write-LogLine ("[{0}] RAM: AvailMB={1} ThresholdMB={2} GateActive={3}" -f `
+                $now, $availMB, $RamThresholdMB, ($availMB -lt $RamThresholdMB))
+        } else {
+            Write-LogLine ("[{0}] RAM: AvailMB=UNKNOWN ThresholdMB={1} GateActive=UNKNOWN" -f `
+                $now, $RamThresholdMB)
+        }
 
         foreach ($s in $sessions) {
+
+            # Safety: only real user sessions
             if ($s.Id -le 0) { continue }
             if ([string]::IsNullOrWhiteSpace($s.UserName)) { continue }
 
-            $seen[$s.Id] = $true
+            if ($s.State -ne "Disc") {
+                $disconnectStart.Remove($s.Id) | Out-Null
+                continue
+            }
 
-            if ($s.State -eq "Disc") {
+            $user = $s.UserName
+            $id   = $s.Id
 
-                if ($RunOnce.IsPresent -and $ForceCleanup.IsPresent) {
-                    Write-LogLine ("[{0}] FORCE: User={1} ID={2} -> rwinsta" -f $now, $s.UserName, $s.Id)
-                    Get-SystemInfoMemoryLines | ForEach-Object {
-                        Write-LogLine ("[{0}] {1}" -f $now, $_.Trim())
-                    }
-                    & cmd /c ("rwinsta {0}" -f $s.Id) | ForEach-Object {
-                        Write-LogLine ("[{0}] rwinsta: {1}" -f $now, $_)
-                    }
+            # Start timer when first seen disconnected
+            if (-not $disconnectStart.ContainsKey($id)) {
+                $disconnectStart[$id] = $now
+            }
+
+            $discFor = ($now - $disconnectStart[$id])
+            $discForMin = [int][math]::Floor($discFor.TotalMinutes)
+
+            # Default deny
+            if (Is-DeniedUser $user) {
+                Write-LogLine ("[{0}] DECISION: User={1} ID={2} State=Disc DiscForMin={3} Action=SKIP Reason=DefaultDeny" -f `
+                    $now, $user, $id, $discForMin)
+                continue
+            }
+
+            # Allowlist-only enforcement (unless ForceCleanup)
+            $isAllowed = Is-AllowedUser $user
+            if (-not $ForceCleanup.IsPresent -and -not $isAllowed) {
+                Write-LogLine ("[{0}] DECISION: User={1} ID={2} State=Disc DiscForMin={3} Action=SKIP Reason=NotInAllowList" -f `
+                    $now, $user, $id, $discForMin)
+                continue
+            }
+
+            # If not configured, audit only
+            if (-not $ForceCleanup.IsPresent -and -not $enforcementEnabled) {
+                Write-LogLine ("[{0}] DECISION: User={1} ID={2} State=Disc DiscForMin={3} Action=SKIP Reason=EnforcementDisabled(AllowListEmptyOrThresholdInvalid)" -f `
+                    $now, $user, $id, $discForMin)
+                continue
+            }
+
+            # Grace window
+            if (-not $ForceCleanup.IsPresent -and $discFor -lt $grace) {
+                Write-LogLine ("[{0}] DECISION: User={1} ID={2} State=Disc DiscForMin={3} Action=SKIP Reason=WithinGrace(GraceMin={4})" -f `
+                    $now, $user, $id, $discForMin, $DisconnectGraceMinutes)
+                continue
+            }
+
+            # RAM gate
+            if (-not $ForceCleanup.IsPresent) {
+                if ($availMB -lt 0) {
+                    Write-LogLine ("[{0}] DECISION: User={1} ID={2} State=Disc DiscForMin={3} AvailMB=UNKNOWN Action=SKIP Reason=RamCheckFailed" -f `
+                        $now, $user, $id, $discForMin)
                     continue
                 }
 
-                if (-not $disconnectStart.ContainsKey($s.Id)) {
-                    $disconnectStart[$s.Id] = $now
+                if ($availMB -ge $RamThresholdMB) {
+                    Write-LogLine ("[{0}] DECISION: User={1} ID={2} State=Disc DiscForMin={3} AvailMB={4} ThresholdMB={5} Action=SKIP Reason=RamAboveThreshold" -f `
+                        $now, $user, $id, $discForMin, $availMB, $RamThresholdMB)
+                    continue
                 }
-                elseif (($now - $disconnectStart[$s.Id]) -ge $grace) {
-                    Write-LogLine ("[{0}] TIMEOUT: User={1} ID={2} -> rwinsta" -f $now, $s.UserName, $s.Id)
-                    Get-SystemInfoMemoryLines | ForEach-Object {
-                        Write-LogLine ("[{0}] {1}" -f $now, $_.Trim())
-                    }
-                    & cmd /c ("rwinsta {0}" -f $s.Id) | ForEach-Object {
-                        Write-LogLine ("[{0}] rwinsta: {1}" -f $now, $_)
-                    }
-                    $disconnectStart.Remove($s.Id)
+
+                Write-LogLine ("[{0}] GATEPASS: User={1} ID={2} DiscForMin={3} AvailMB={4} ThresholdMB={5} Reason=RamBelowThreshold" -f `
+                    $now, $user, $id, $discForMin, $availMB, $RamThresholdMB)
+            }
+
+            # ForceCleanup mode (RunOnce test) keeps legacy behaviour but remains audited
+            if ($RunOnce.IsPresent -and $ForceCleanup.IsPresent) {
+                Write-LogLine ("[{0}] ACTION: User={1} ID={2} DiscForMin={3} -> rwinsta Reason=ForceCleanup" -f `
+                    $now, $user, $id, $discForMin)
+
+                Get-SystemInfoMemoryLines | ForEach-Object {
+                    Write-LogLine ("[{0}] {1}" -f $now, $_.Trim())
                 }
+
+                & cmd /c ("rwinsta {0}" -f $id) | ForEach-Object {
+                    Write-LogLine ("[{0}] rwinsta: {1}" -f $now, $_)
+                }
+
+                $disconnectStart.Remove($id) | Out-Null
+                continue
             }
-            else {
-                $disconnectStart.Remove($s.Id) | Out-Null
+
+            # Audit-first snapshot then cleanup
+            Write-LogLine ("[{0}] ACTION: User={1} ID={2} DiscForMin={3} -> rwinsta Reason=TimeoutAndRamGate" -f `
+                $now, $user, $id, $discForMin)
+
+            Get-SystemInfoMemoryLines | ForEach-Object {
+                Write-LogLine ("[{0}] {1}" -f $now, $_.Trim())
             }
+
+            & cmd /c ("rwinsta {0}" -f $id) | ForEach-Object {
+                Write-LogLine ("[{0}] rwinsta: {1}" -f $now, $_)
+            }
+
+            $disconnectStart.Remove($id) | Out-Null
         }
 
         if ($RunOnce.IsPresent) {
@@ -223,7 +351,15 @@ function Install-Task {
         } catch {}
 
         $exe  = "powershell.exe"
-        $args = "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$Watcher`" -LogDir `"$LogDir`" -PollSeconds $PollSeconds -DisconnectGraceMinutes $DisconnectGraceMinutes -MaxLogSizeMB $MaxLogSizeMB -MaxArchives $MaxArchives"
+
+        # Expand list args safely
+        $allowArg = ""
+        foreach ($u in $AllowUsers) { $allowArg += " -AllowUsers `"$u`"" }
+
+        $denyArg = ""
+        foreach ($u in $DenyUsers) { $denyArg += " -DenyUsers `"$u`"" }
+
+        $args = "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$Watcher`" -LogDir `"$LogDir`" -PollSeconds $PollSeconds -DisconnectGraceMinutes $DisconnectGraceMinutes -RamThresholdMB $RamThresholdMB $allowArg $denyArg -MaxLogSizeMB $MaxLogSizeMB -MaxArchives $MaxArchives"
 
         Register-ScheduledTask `
             -TaskName $TaskName `
@@ -249,7 +385,7 @@ function One-Time-TestRun {
 
     Do-Action "One-time test run (ForceCleanup + RunOnce)" {
         & powershell.exe -NoProfile -ExecutionPolicy Bypass -Command `
-            "& '$Watcher' -LogDir '$LogDir' -PollSeconds 1 -DisconnectGraceMinutes 0 -ForceCleanup -RunOnce"
+            "& '$Watcher' -LogDir '$LogDir' -PollSeconds 1 -DisconnectGraceMinutes 0 -ForceCleanup -RunOnce -RamThresholdMB $RamThresholdMB"
     }
 }
 
@@ -260,6 +396,7 @@ Say "ScriptsDir=$ScriptsDir"
 Say "LogDir=$LogDir"
 Say "Watcher=$Watcher"
 Say "TaskName=$TaskName"
+Say ("Policy: RamThresholdMB={0} AllowUsers={1} DenyUsers={2}" -f $RamThresholdMB, ($AllowUsers -join ","), ($DenyUsers -join ","))
 Say ("Toggles: EnsureFolders={0} WriteWatcher={1} InstallTask={2} StartTask={3} OneTimeTestRun={4} DryRun={5}" -f `
     $DoEnsureFolders.IsPresent, $DoWriteWatcher.IsPresent, $DoInstallScheduledTask.IsPresent, `
     $DoStartScheduledTask.IsPresent, $DoOneTimeTestRun.IsPresent, $DoDryRun.IsPresent)
