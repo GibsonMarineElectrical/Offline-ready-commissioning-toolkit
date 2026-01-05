@@ -63,7 +63,7 @@ All of the following parameters are exposed in `RdpDiscinstaller.ps1`:
 
 Change defaults by editing the parameters passed within the batch menu or invoking the PowerShell installer directly.
 
-## Field validation
+## Field validation - **Invalidated - Did not have services running. When hosting a service, found it closed services. Issue raised, need to find alternative method**
 - Verified stable for **3 consecutive days** on a headless Windows 10 testbed.
 - Before the watcher runs, each disconnected Administrator session consumes roughly **1024 MB** of RAM.
 - After cleanup, available physical memory consistently rebounds to the 4.9-5.0 GB range, confirming the resources are reclaimed.
