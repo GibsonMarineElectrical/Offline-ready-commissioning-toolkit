@@ -103,16 +103,3 @@ This provides a simple audit trail for operators and support staff.
 - Every action and error is logged  
 - Nothing is installed or removed without a deliberate menu choice  
 
----
-
-## One-time commissioning test
-
-To test behaviour without enabling continuous monitoring:
-
-1. Run option **“One-time test run”** in `RDPDisc-install.bat`.
-2. The watcher runs once, clears disconnected sessions, logs the result, and exits.
-3. Review the log file for confirmation.
-
-This mode is intended for commissioning and diagnostics only.
-
-
