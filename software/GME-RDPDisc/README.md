@@ -1,5 +1,3 @@
----
-
 ## 🔴 CARRY OUT YOUR OWN TESTS PRIOR TO ROLLING THIS OUT FOR PRODUCTION
 
 **This tool is not approved for production use until tested.**
