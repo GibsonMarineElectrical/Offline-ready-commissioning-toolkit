@@ -1,5 +1,3 @@
-# ISSUE RAISED – In Testing Phase on Workstation with multiple services running
-
 ---
 
 ## 🔴 CARRY OUT YOUR OWN TESTS PRIOR TO ROLLING THIS OUT FOR PRODUCTION
