@@ -34,13 +34,13 @@ $Config = @{
     TaskName               = "RDP Disconnect Watcher"
 
     PollSeconds            = 60
-    DisconnectGraceMinutes = 1
+    DisconnectGraceMinutes = 10
 
     MaxLogSizeMB           = 5
     MaxArchives            = 10
 
     # Never reset these users (case-insensitive match; supports "User" or "DOMAIN\User")
-    DenyUsers              = @("Administrator")
+    DenyUsers              = @("Administrator") # to add more users a , after the first user, never the last
 }
 # =========================
 
@@ -142,6 +142,12 @@ function Write-LogLine {
     `$Line | Out-File -FilePath `$LogPath -Append -Encoding UTF8
 }
 
+function Write-LogBlock {
+    param([string[]]`$Lines)
+    foreach (`$l in `$Lines) { Write-LogLine `$l }
+    Write-LogLine ""   # blank line between blocks (human-readable)
+}
+
 function Rotate-LogIfNeeded {
     if (!(Test-Path `$LogPath)) { return }
     if ((Get-Item `$LogPath).Length -lt (`$MaxLogSizeMB * 1MB)) { return }
@@ -219,7 +225,9 @@ function Is-DeniedUser([string]`$u) {
 }
 
 # Boot log line (if you do not see this, the watcher is not starting)
-Write-LogLine ("[{0}] BOOT: Watcher launched. PID={1}" -f (Get-Date), `$PID)
+Write-LogBlock @(
+    ("[{0}] BOOT: Watcher launched. PID={1}" -f (Get-Date), `$PID)
+)
 
 `$disconnectStart = @{}
 `$grace = if (`$ForceCleanup.IsPresent) {
@@ -228,8 +236,10 @@ Write-LogLine ("[{0}] BOOT: Watcher launched. PID={1}" -f (Get-Date), `$PID)
     New-TimeSpan -Minutes `$DisconnectGraceMinutes
 }
 
-Write-LogLine ("[{0}] START: Poll={1}s GraceMin={2} ForceCleanup={3} RunOnce={4} DenyUsers={5}" -f `
-    (Get-Date), `$PollSeconds, `$DisconnectGraceMinutes, `$ForceCleanup.IsPresent, `$RunOnce.IsPresent, (`$DenyUsers -join ","))
+Write-LogBlock @(
+    ("[{0}] START: Poll={1}s GraceMin={2} ForceCleanup={3} RunOnce={4} DenyUsers={5}" -f `
+        (Get-Date), `$PollSeconds, `$DisconnectGraceMinutes, `$ForceCleanup.IsPresent, `$RunOnce.IsPresent, (`$DenyUsers -join ","))
+)
 
 while (`$true) {
     try {
@@ -248,6 +258,7 @@ while (`$true) {
             } else {
                 Write-LogLine ("[{0}] qwinsta> (no output)" -f `$now)
             }
+            Write-LogLine ""
         }
 
         foreach (`$s in `$sessions) {
@@ -256,8 +267,13 @@ while (`$true) {
 
             if (Is-DeniedUser `$s.UserName) {
                 if (`$s.State -eq "Disc") {
-                    Write-LogLine ("[{0}] SKIP: User={1} (Short={2}) ID={3} State={4} Reason=DeniedUser" -f `
-                        `$now, `$s.UserName, (Get-ShortUser `$s.UserName), `$s.Id, `$s.State)
+                    Write-LogBlock @(
+                        ("[{0}] ACTION: No action taken (protected user)" -f `$now),
+                        ("       User:  {0}" -f `$s.UserName),
+                        ("       ID:    {0}" -f `$s.Id),
+                        ("       State: {0}" -f `$s.State),
+                        ("       Reason: User is in DenyUsers list")
+                    )
                 }
                 continue
             }
@@ -266,13 +282,24 @@ while (`$true) {
 
                 # ForceCleanup/RunOnce test mode still respects DenyUsers (Administrator stays safe)
                 if (`$RunOnce.IsPresent -and `$ForceCleanup.IsPresent) {
-                    Write-LogLine ("[{0}] FORCE: User={1} ID={2} -> rwinsta" -f `$now, `$s.UserName, `$s.Id)
-                    Get-SystemInfoMemoryLines | ForEach-Object {
-                        Write-LogLine ("[{0}] {1}" -f `$now, `$_.Trim())
-                    }
-                    & cmd /c ("rwinsta {0}" -f `$s.Id) | ForEach-Object {
-                        Write-LogLine ("[{0}] rwinsta: {1}" -f `$now, `$_)
-                    }
+
+                    `$memBefore = @(Get-SystemInfoMemoryLines | ForEach-Object { `$_.Trim() })
+
+                    # Perform cleanup
+                    & cmd /c ("rwinsta {0}" -f `$s.Id) | Out-Null
+
+                    `$memAfter = @(Get-SystemInfoMemoryLines | ForEach-Object { `$_.Trim() })
+
+                    Write-LogBlock @(
+                        ("[{0}] DISCONNECTED: Session cleared (test mode)" -f `$now),
+                        ("       Reason: ForceCleanup + RunOnce"),
+                        ("       User:   {0}" -f `$s.UserName),
+                        ("       ID:     {0}" -f `$s.Id),
+                        ("       Memory before:"),
+                        ("         {0}" -f (`$memBefore -join "`r`n         ")),
+                        ("       Memory after:"),
+                        ("         {0}" -f (`$memAfter -join "`r`n         "))
+                    )
                     continue
                 }
 
@@ -280,13 +307,25 @@ while (`$true) {
                     `$disconnectStart[`$s.Id] = `$now
                 }
                 elseif ((`$now - `$disconnectStart[`$s.Id]) -ge `$grace) {
-                    Write-LogLine ("[{0}] TIMEOUT: User={1} ID={2} -> rwinsta" -f `$now, `$s.UserName, `$s.Id)
-                    Get-SystemInfoMemoryLines | ForEach-Object {
-                        Write-LogLine ("[{0}] {1}" -f `$now, `$_.Trim())
-                    }
-                    & cmd /c ("rwinsta {0}" -f `$s.Id) | ForEach-Object {
-                        Write-LogLine ("[{0}] rwinsta: {1}" -f `$now, `$_)
-                    }
+
+                    `$memBefore = @(Get-SystemInfoMemoryLines | ForEach-Object { `$_.Trim() })
+
+                    # Perform cleanup
+                    & cmd /c ("rwinsta {0}" -f `$s.Id) | Out-Null
+
+                    `$memAfter = @(Get-SystemInfoMemoryLines | ForEach-Object { `$_.Trim() })
+
+                    Write-LogBlock @(
+                        ("[{0}] DISCONNECTED: Session cleared" -f `$now),
+                        ("       Reason: Disconnected longer than grace period ({0} minute(s))" -f `$DisconnectGraceMinutes),
+                        ("       User:   {0}" -f `$s.UserName),
+                        ("       ID:     {0}" -f `$s.Id),
+                        ("       Memory before:"),
+                        ("         {0}" -f (`$memBefore -join "`r`n         ")),
+                        ("       Memory after:"),
+                        ("         {0}" -f (`$memAfter -join "`r`n         "))
+                    )
+
                     `$disconnectStart.Remove(`$s.Id) | Out-Null
                 }
             }
@@ -296,7 +335,9 @@ while (`$true) {
         }
 
         if (`$RunOnce.IsPresent) {
-            Write-LogLine ("[{0}] EXIT: RunOnce" -f (Get-Date))
+            Write-LogBlock @(
+                ("[{0}] EXIT: RunOnce complete" -f (Get-Date))
+            )
             break
         }
 
@@ -305,7 +346,9 @@ while (`$true) {
     catch {
         # If logging fails due to file/path issues, this catch may still fail to write.
         try {
-            Write-LogLine ("[{0}] ERROR: {1}" -f (Get-Date), `$_.Exception.Message)
+            Write-LogBlock @(
+                ("[{0}] ERROR: {1}" -f (Get-Date), `$_.Exception.Message)
+            )
         } catch {}
         if (`$RunOnce.IsPresent) { break }
         Start-Sleep -Seconds `$PollSeconds
