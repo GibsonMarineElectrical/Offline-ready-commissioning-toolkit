@@ -1,5 +1,24 @@
 # ISSUE RAISED – In Testing Phase on Workstation with multiple services running
 
+---
+
+## 🔴 DO NOT DEPLOY
+
+**This tool is not approved for production use.**
+
+Testing on a workstation with multiple running services identified that clearing disconnected RDP sessions can also impact sessions owning active services. This may interrupt background workloads or cause unintended service outages.
+
+Until service-safe behaviour is confirmed:
+- use is limited to controlled testing only
+- deployment on live or critical systems is prohibited
+- further investigation and mitigation are required
+
+**Do not deploy this tool to production environments.**
+
+---
+
+
+
 # RDP Disconnect Watcher (GME-RDPDisc)
 
 A small Windows background tool that **clears old disconnected Remote Desktop (RDP) sessions** so they do not slowly use up memory on unattended systems.
@@ -11,13 +30,15 @@ It runs quietly in the background using a Scheduled Task.
 ## What it’s for
 
 When someone disconnects from Remote Desktop, Windows often leaves their session logged in as **Disconnected**.  
-Over time, several disconnected sessions can build up and the system can become slow or unstable.
+Over time, multiple disconnected user sessions can build up and the system can become slow or unstable.
 
 This tool:
-- checks for disconnected RDP sessions  
-- waits a set amount of time (a *grace period*)  
+- checks for **disconnected RDP user sessions**
+- waits a set amount of time (a *grace period*)
 - clears the session if it stays disconnected  
-- writes a log so operators can see exactly what happened  
+- **explicitly excludes protected accounts (such as `Administrator`)**
+- writes a log so operators can see exactly what happened
+
 
 ---
 
