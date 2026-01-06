@@ -1,4 +1,4 @@
-# ISSUE RAISED – DO NOT USE YET
+# ISSUE RAISED – In Testing Phase on Workstation with multiple services running
 
 # RDP Disconnect Watcher (GME-RDPDisc)
 
@@ -60,18 +60,6 @@ This tool:
    - remove it completely  
 
 No changes are made unless you explicitly select an option.
-
----
-
-## Important notice — *why this is “DO NOT USE YET”*
-
-During testing it was found that **sessions running services were also being closed**, which can interrupt background processes.
-
-Because of this:
-- the approach needs revisiting
-- an alternative method is required before production use
-
-Do **not** deploy this on live systems yet.
 
 ---
 
