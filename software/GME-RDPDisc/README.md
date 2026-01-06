@@ -78,12 +78,12 @@ You can change:
 
 ## Sample log excerpt
 
-[12/22/2025 12:32:23 PM] TIMEOUT: User=Administrator ID=5 -> rwinsta
-[12/22/2025 12:32:23 PM] Total Physical Memory: 7,934 MB
-[12/22/2025 12:32:23 PM] Available Physical Memory: 4,965 MB
-[12/23/2025 7:04:19 PM] TIMEOUT: User=Administrator ID=6 -> rwinsta
-[12/23/2025 7:04:19 PM] Total Physical Memory: 7,934 MB
-[12/23/2025 7:04:19 PM] Available Physical Memory: 4,893 MB
+- [12/22/2025 12:32:23 PM] TIMEOUT: User=Administrator ID=5 -> rwinsta
+- [12/22/2025 12:32:23 PM] Total Physical Memory: 7,934 MB
+- [12/22/2025 12:32:23 PM] Available Physical Memory: 4,965 MB
+- [12/23/2025 7:04:19 PM] TIMEOUT: User=Administrator ID=6 -> rwinsta
+- [12/23/2025 7:04:19 PM] Total Physical Memory: 7,934 MB
+- [12/23/2025 7:04:19 PM] Available Physical Memory: 4,893 MB
 
 
 Each `TIMEOUT` entry shows:
