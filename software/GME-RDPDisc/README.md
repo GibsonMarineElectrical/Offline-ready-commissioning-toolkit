@@ -2,9 +2,9 @@
 
 ---
 
-## 🔴 DO NOT DEPLOY
+## 🔴 CARRY OUT YOUR OWN TESTS PRIOR TO ROLLING THIS OUT FOR PRODUCTION
 
-**This tool is not approved for production use.**
+**This tool is not approved for production use until tested.**
 
 Testing on a workstation with multiple running services identified that clearing disconnected RDP sessions can also impact sessions owning active services. This may interrupt background workloads or cause unintended service outages.
 
@@ -13,7 +13,7 @@ Until service-safe behaviour is confirmed:
 - deployment on live or critical systems is prohibited
 - further investigation and mitigation are required
 
-**Do not deploy this tool to production environments.**
+**Do not deploy this tool to production environments until tested.**
 
 ---
 
@@ -82,7 +82,7 @@ This is the only section an operator should edit.
 
 ### Example (simplified)
 
-DisconnectGraceMinutes = 1
+DisconnectGraceMinutes = 10
 
 
 ---
