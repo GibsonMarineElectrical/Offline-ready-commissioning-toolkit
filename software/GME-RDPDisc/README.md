@@ -61,6 +61,32 @@ This tool:
 
 ---
 
+## Operator configuration (important)
+
+All normal behaviour is controlled from **one place** in the installer script:
+
+**`RdpDiscinstaller.ps1` → Operator Settings block**
+
+This is the only section an operator should edit.
+
+### Key setting
+
+- **`DisconnectGraceMinutes`**  
+  Controls how long a disconnected RDP session is allowed to remain before it is cleared.
+
+**Current value:**  
+- Set to **1 minute** for testing and validation.
+
+**Before deployment:**  
+- The end user **must increase this value** to suit their environment (for example 10–30 minutes).
+
+### Example (simplified)
+
+DisconnectGraceMinutes = 1
+
+
+---
+
 ## Where the files are
 
 - **Watcher script**  
