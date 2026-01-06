@@ -36,7 +36,7 @@ $Watcher = Join-Path $ScriptsDir "RdpDiscWatch.ps1"
 $RamThresholdMB = 2048
 
 # Default deny (never reset these users)
-$DenyUsers = @("Administrator", "Partrac_admin")
+$DenyUsers = @("Administrator", "_admin")
 
 # Allowlist-only enforcement:
 # Only these users are eligible for cleanup.
