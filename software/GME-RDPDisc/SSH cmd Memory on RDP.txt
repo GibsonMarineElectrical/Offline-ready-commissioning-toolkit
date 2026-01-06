@@ -1,1 +1,7 @@
 cmd /c systeminfo | findstr /C:"Total Physical Memory" /C:"Available Physical Memory"
+
+
+
+Sometimes this is needed to to be ran in powershell (run as admin):
+
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine
