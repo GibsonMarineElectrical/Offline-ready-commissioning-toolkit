@@ -1,11 +1,12 @@
 @echo off
-setlocal
+setlocal EnableExtensions
 
 rem ---- config ----
 set "TASKNAME=RDP Disconnect Watcher"
 set "LOGFILE=C:\Scripts\Logs\rdp_disconnect_watch.log"
 set "WATCHER=C:\Scripts\RdpDiscWatch.ps1"
 set "PS1=%~dp0RdpDiscinstaller.ps1"
+set "LOGDIR=C:\Scripts\Logs"
 
 rem ---- preflight ----
 if not exist "%PS1%" (
@@ -20,13 +21,9 @@ if not exist "%PS1%" (
   exit /b 1
 )
 
-rem ---- admin check (needed for task install/remove/start/stop) ----
+rem ---- admin check ----
 net session >nul 2>&1
 if %errorlevel%==0 ( set "ISADMIN=1" ) else ( set "ISADMIN=0" )
-
-rem ---- helpers ----
-call :TaskExists
-set "TASKEXISTS=%errorlevel%"
 
 goto menu
 
@@ -37,6 +34,15 @@ exit /b %errorlevel%
 :WatcherExists
 if exist "%WATCHER%" ( exit /b 0 ) else ( exit /b 1 )
 
+:RequireAdmin
+if "%ISADMIN%"=="1" exit /b 0
+echo.
+echo ERROR: This option requires Administrator privileges.
+echo Select option 8 to relaunch as ADMIN.
+echo.
+pause
+exit /b 1
+
 :menu
 call :TaskExists
 set "TASKEXISTS=%errorlevel%"
@@ -45,91 +51,63 @@ set "WATCHEREXISTS=%errorlevel%"
 
 cls
 echo ==========================================
-echo   RDP Disconnect Watcher - Installer Menu
+echo   RDP Disconnect Watcher - Menu
 echo ==========================================
-echo Script:  %PS1%
-echo Watcher: %WATCHER%
-if "%WATCHEREXISTS%"=="0" (echo Watcher: PRESENT) else (echo Watcher: MISSING)
-if "%TASKEXISTS%"=="0" (echo Task:   PRESENT) else (echo Task:   MISSING)
-if "%ISADMIN%"=="1" (echo Privileges: ADMIN) else (echo Privileges: NOT ADMIN)
+echo Installer:  %PS1%
+echo Watcher:    %WATCHER%
+echo Log:        %LOGFILE%
+if "%WATCHEREXISTS%"=="0" (echo Watcher:    PRESENT) else (echo Watcher:    MISSING)
+if "%TASKEXISTS%"=="0"   (echo Task:       PRESENT) else (echo Task:       MISSING)
+if "%ISADMIN%"=="1"      (echo Privileges: ADMIN)  else (echo Privileges: NOT ADMIN)
 echo.
-echo  1) Dry run (preview actions only)
-echo  2) Write watcher (update if exists, create if missing)
-echo  3) Install scheduled task (update if exists, create if missing)   [admin]
-echo  4) Install scheduled task + start now (update/create)            [admin]
-echo  5) Full install (folders + watcher + task + start)               [admin]
-echo  6) One-time test run (ForceCleanup + RunOnce)
-echo  7) Start scheduled task                                          [admin]
-echo  8) Stop scheduled task                                           [admin]
-echo  9) Remove scheduled task                                         [admin]
-echo 10) Open log file
-echo 11) Show qwinsta (current sessions)
-echo 12) Relaunch this menu as ADMIN
-echo 13) Update watcher ONLY if it exists (no create)
-echo 14) Update task ONLY if it exists (no create)                     [admin]
+echo  1) Full install (folders + watcher + task + start)   [admin]
+echo  2) Update      (rewrite watcher + reinstall task)    [admin]
+echo  3) Start task                                        [admin]
+echo  4) Stop task                                         [admin]
+echo  5) Open log
+echo  6) Show qwinsta sessions
+echo  7) Remove everything (task + watcher + logs)         [admin]
+echo  8) Relaunch as ADMIN
 echo  0) Exit
 echo.
 set /p choice=Select option:
 
-if "%choice%"=="1" goto dryrun
-if "%choice%"=="2" goto write_or_create_watcher
-if "%choice%"=="3" goto install_or_update_task
-if "%choice%"=="4" goto install_or_update_task_start
-if "%choice%"=="5" goto fullinstall
-if "%choice%"=="6" goto testrun
-if "%choice%"=="7" goto starttask
-if "%choice%"=="8" goto stoptask
-if "%choice%"=="9" goto removetask
-if "%choice%"=="10" goto openlog
-if "%choice%"=="11" goto qwinsta
-if "%choice%"=="12" goto elevate
-if "%choice%"=="13" goto update_watcher_only_if_exists
-if "%choice%"=="14" goto update_task_only_if_exists
+if "%choice%"=="1" goto fullinstall
+if "%choice%"=="2" goto update
+if "%choice%"=="3" goto starttask
+if "%choice%"=="4" goto stoptask
+if "%choice%"=="5" goto openlog
+if "%choice%"=="6" goto qwinsta
+if "%choice%"=="7" goto removeall
+if "%choice%"=="8" goto elevate
 if "%choice%"=="0" goto end
 
 echo Invalid choice.
 pause
 goto menu
 
-:dryrun
-powershell -NoProfile -ExecutionPolicy Bypass -File "%PS1%" -DoDryRun -DoEnsureFolders -DoWriteWatcher -DoInstallScheduledTask -DoStartScheduledTask
-pause
-goto menu
-
-:write_or_create_watcher
-powershell -NoProfile -ExecutionPolicy Bypass -File "%PS1%" -DoEnsureFolders -DoWriteWatcher
-pause
-goto menu
-
-:install_or_update_task
-if "%ISADMIN%"=="0" goto needadmin
-powershell -NoProfile -ExecutionPolicy Bypass -File "%PS1%" -DoEnsureFolders -DoInstallScheduledTask
-pause
-goto menu
-
-:install_or_update_task_start
-if "%ISADMIN%"=="0" goto needadmin
-powershell -NoProfile -ExecutionPolicy Bypass -File "%PS1%" -DoEnsureFolders -DoInstallScheduledTask -DoStartScheduledTask
-pause
-goto menu
-
 :fullinstall
-if "%ISADMIN%"=="0" goto needadmin
+call :RequireAdmin
+if not "%errorlevel%"=="0" goto menu
 powershell -NoProfile -ExecutionPolicy Bypass -File "%PS1%" -DoEnsureFolders -DoWriteWatcher -DoInstallScheduledTask -DoStartScheduledTask
 pause
 goto menu
 
-:testrun
-powershell -NoProfile -ExecutionPolicy Bypass -File "%PS1%" -DoEnsureFolders -DoOneTimeTestRun
+:update
+call :RequireAdmin
+if not "%errorlevel%"=="0" goto menu
+powershell -NoProfile -ExecutionPolicy Bypass -File "%PS1%" -DoEnsureFolders -DoWriteWatcher -DoInstallScheduledTask
+powershell -NoProfile -ExecutionPolicy Bypass -File "%PS1%" -DoStartScheduledTask
 pause
 goto menu
 
 :starttask
-if "%ISADMIN%"=="0" goto needadmin
+call :RequireAdmin
+if not "%errorlevel%"=="0" goto menu
 call :TaskExists
 if not "%errorlevel%"=="0" (
   echo ERROR: Task not found: "%TASKNAME%"
-  echo Use option 3, 4, or 5 to create it.
+  echo Use option 1 to create it.
   pause
   goto menu
 )
@@ -138,7 +116,8 @@ pause
 goto menu
 
 :stoptask
-if "%ISADMIN%"=="0" goto needadmin
+call :RequireAdmin
+if not "%errorlevel%"=="0" goto menu
 call :TaskExists
 if not "%errorlevel%"=="0" (
   echo ERROR: Task not found: "%TASKNAME%"
@@ -149,24 +128,12 @@ schtasks /end /tn "%TASKNAME%"
 pause
 goto menu
 
-:removetask
-if "%ISADMIN%"=="0" goto needadmin
-call :TaskExists
-if not "%errorlevel%"=="0" (
-  echo Task already missing: "%TASKNAME%"
-  pause
-  goto menu
-)
-schtasks /delete /f /tn "%TASKNAME%"
-pause
-goto menu
-
 :openlog
 if exist "%LOGFILE%" (
   notepad "%LOGFILE%"
 ) else (
   echo Log file not found: %LOGFILE%
-  echo Run option 2 or 5 first to create it.
+  echo Run option 1 first to create it.
   pause
 )
 goto menu
@@ -176,44 +143,48 @@ cmd /c qwinsta
 pause
 goto menu
 
-:update_watcher_only_if_exists
-call :WatcherExists
-if not "%errorlevel%"=="0" (
-  echo ERROR: Watcher not found: "%WATCHER%"
-  echo Use option 2 or 5 to create it.
+:removeall
+call :RequireAdmin
+if not "%errorlevel%"=="0" goto menu
+
+cls
+echo ==========================================
+echo   REMOVE EVERYTHING
+echo ==========================================
+echo This will:
+echo  - Stop and delete the scheduled task: "%TASKNAME%"
+echo  - Delete watcher file: "%WATCHER%"
+echo  - Delete log directory: "%LOGDIR%"
+echo.
+set /p confirm=Type YES to confirm:
+
+if /I not "%confirm%"=="YES" (
+  echo Cancelled.
   pause
   goto menu
 )
-powershell -NoProfile -ExecutionPolicy Bypass -File "%PS1%" -DoWriteWatcher
-pause
-goto menu
 
-:update_task_only_if_exists
-if "%ISADMIN%"=="0" goto needadmin
 call :TaskExists
-if not "%errorlevel%"=="0" (
-  echo ERROR: Task not found: "%TASKNAME%"
-  echo Use option 3, 4, or 5 to create it.
-  pause
-  goto menu
+if "%errorlevel%"=="0" (
+  schtasks /end /tn "%TASKNAME%" >nul 2>&1
+  schtasks /delete /f /tn "%TASKNAME%" >nul 2>&1
 )
-powershell -NoProfile -ExecutionPolicy Bypass -File "%PS1%" -DoInstallScheduledTask
-pause
-goto menu
 
-:needadmin
-echo.
-echo ERROR: This option requires Administrator privileges.
-echo Select option 12 to relaunch as ADMIN.
-echo.
+if exist "%WATCHER%" del /f /q "%WATCHER%" >nul 2>&1
+if exist "%LOGDIR%" rmdir /s /q "%LOGDIR%" >nul 2>&1
+
+echo Done. Everything removed.
 pause
 goto menu
 
 :elevate
 if "%ISADMIN%"=="1" goto menu
-powershell -NoProfile -ExecutionPolicy Bypass -Command "Start-Process -FilePath '%~f0' -Verb RunAs"
+
+rem Relaunch via cmd.exe so RunAs works reliably for .bat files
+powershell -NoProfile -ExecutionPolicy Bypass -Command ^
+  "Start-Process -FilePath 'cmd.exe' -ArgumentList '/c','""%~f0""' -Verb RunAs"
 exit /b
 
 :end
 endlocal
-exit /b
+exit /b 0
