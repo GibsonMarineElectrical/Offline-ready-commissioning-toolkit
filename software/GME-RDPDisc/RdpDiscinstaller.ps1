@@ -1,10 +1,10 @@
-﻿# RdpDiscinstaller.ps1
+# RdpDiscInstaller.ps1
 # Windows PowerShell 5.1 compatible
 # All feature toggles are [switch] (OFF unless explicitly provided)
 
 [CmdletBinding()]
 param(
-    # Paths / names
+    # Paths / names (can be overridden but normally you edit Operator Settings below)
     [string]$ScriptsDir = "C:\Scripts",
     [string]$LogDir     = "C:\Scripts\Logs",
     [string]$TaskName   = "RDP Disconnect Watcher",
@@ -17,38 +17,54 @@ param(
     [switch]$DoOneTimeTestRun,
     [switch]$DoDryRun,
 
-    # Watcher config
-    [int]$PollSeconds = 60,
-    [int]$DisconnectGraceMinutes = 10,
-
-    # Log rotation
-    [int]$MaxLogSizeMB = 5,
-    [int]$MaxArchives  = 10
+    # Optional overrides (leave alone if you want one config block)
+    [int]$PollSeconds,
+    [int]$DisconnectGraceMinutes
 )
 
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
+# =========================
+# OPERATOR SETTINGS (EDIT ONLY THIS BLOCK)
+# =========================
+$Config = @{
+    ScriptsDir             = "C:\Scripts"
+    LogDir                 = "C:\Scripts\Logs"
+    TaskName               = "RDP Disconnect Watcher"
+
+    PollSeconds            = 60
+    DisconnectGraceMinutes = 1
+
+    MaxLogSizeMB           = 5
+    MaxArchives            = 10
+
+    # Never reset these users (case-insensitive match; supports "User" or "DOMAIN\User")
+    DenyUsers              = @("Administrator")
+}
+# =========================
+
+# Apply operator settings unless explicitly provided via params
+if (-not $PSBoundParameters.ContainsKey("ScriptsDir")) { $ScriptsDir = [string]$Config.ScriptsDir }
+if (-not $PSBoundParameters.ContainsKey("LogDir"))     { $LogDir     = [string]$Config.LogDir }
+if (-not $PSBoundParameters.ContainsKey("TaskName"))   { $TaskName   = [string]$Config.TaskName }
+
+if (-not $PSBoundParameters.ContainsKey("PollSeconds"))            { $PollSeconds            = [int]$Config.PollSeconds }
+if (-not $PSBoundParameters.ContainsKey("DisconnectGraceMinutes")) { $DisconnectGraceMinutes = [int]$Config.DisconnectGraceMinutes }
+
+$MaxLogSizeMB = [int]$Config.MaxLogSizeMB
+$MaxArchives  = [int]$Config.MaxArchives
+$DenyUsers    = [string[]]$Config.DenyUsers
+
 $Watcher = Join-Path $ScriptsDir "RdpDiscWatch.ps1"
 
-# ---------------- EASY CONFIG (edit here) ----------------
-# RAM gate: enforcement only when Available RAM is BELOW this threshold (MB)
-$RamThresholdMB = 2048
-
-# Default deny (never reset these users)
-$DenyUsers = @("Administrator", "_admin")
-
-# Allowlist-only enforcement:
-# Only these users are eligible for cleanup.
-# If empty, watcher runs in AUDIT-ONLY mode (no rwinsta except ForceCleanup test runs).
-$AllowUsers = @()
-# ---------------------------------------------------------
+# Build a safe PowerShell array literal for embedding into the watcher file
+$DenyUsersLiteral =
+    "@(" + (($DenyUsers | ForEach-Object { '"' + (($_) -replace '"','`"') + '"' }) -join ",") + ")"
 
 # ---------------- helpers ----------------
 
-function Say([string]$msg) {
-    Write-Host $msg
-}
+function Say([string]$msg) { Write-Host $msg }
 
 function Do-Action([string]$desc, [scriptblock]$action) {
     if ($DoDryRun.IsPresent) {
@@ -65,279 +81,245 @@ function Ensure-Dir([string]$path) {
     }
 }
 
+function Test-IsAdmin {
+    try {
+        $id = [Security.Principal.WindowsIdentity]::GetCurrent()
+        $p  = New-Object Security.Principal.WindowsPrincipal($id)
+        return $p.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+    } catch {
+        return $false
+    }
+}
+
+function Ensure-ExecutionPolicyRemoteSignedLocalMachine {
+    # This must run elevated. Only run it when the installer is actually doing admin work.
+    if (-not (Test-IsAdmin)) { return }
+
+    Do-Action "Set ExecutionPolicy: RemoteSigned (LocalMachine)" {
+        try {
+            $current = Get-ExecutionPolicy -Scope LocalMachine -ErrorAction Stop
+            if ($current -ne 'RemoteSigned') {
+                Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine -Force -ErrorAction Stop
+            }
+        } catch {
+            Say ("WARN: Could not set ExecutionPolicy RemoteSigned (LocalMachine): {0}" -f $_.Exception.Message)
+        }
+    }
+}
+
 # ---------------- watcher writer ----------------
 
 function Write-WatcherScript {
-
     Do-Action "Write watcher script: $Watcher" {
 
-@'
+$watcherContent = @"
 param(
-    [string]$LogDir = "C:\Logs",
-    [string]$LogFileName = "rdp_disconnect_watch.log",
-    [int]$PollSeconds = 60,
-    [int]$DisconnectGraceMinutes = 10,
+    [string]`$LogDir = "$LogDir",
+    [string]`$LogFileName = "rdp_disconnect_watch.log",
+    [int]`$PollSeconds = $PollSeconds,
+    [int]`$DisconnectGraceMinutes = $DisconnectGraceMinutes,
 
-    # Policy
-    [int]$RamThresholdMB = 2048,
-    [string[]]$AllowUsers = @(),
-    [string[]]$DenyUsers = @("Administrator","Partrac_admin"),
+    # Never reset these users (case-insensitive; supports "User" or "DOMAIN\User")
+    [string[]]`$DenyUsers = $DenyUsersLiteral,
 
-    [switch]$ForceCleanup,
-    [switch]$RunOnce,
-
-    [int]$MaxLogSizeMB = 5,
-    [int]$MaxArchives = 10
+    [switch]`$ForceCleanup,
+    [switch]`$RunOnce,
+    [int]`$MaxLogSizeMB = $MaxLogSizeMB,
+    [int]`$MaxArchives = $MaxArchives
 )
 
 Set-StrictMode -Version Latest
-$ErrorActionPreference = "Stop"
+`$ErrorActionPreference = "Stop"
 
-if (!(Test-Path $LogDir)) {
-    New-Item -Path $LogDir -ItemType Directory -Force | Out-Null
+if (!(Test-Path `$LogDir)) {
+    New-Item -Path `$LogDir -ItemType Directory -Force | Out-Null
 }
 
-$LogPath = Join-Path $LogDir $LogFileName
+`$LogPath = Join-Path `$LogDir `$LogFileName
 
 function Write-LogLine {
-    param([string]$Line)
-    $Line | Out-File -FilePath $LogPath -Append -Encoding UTF8
+    param([string]`$Line)
+    `$Line | Out-File -FilePath `$LogPath -Append -Encoding UTF8
 }
 
 function Rotate-LogIfNeeded {
-    if (!(Test-Path $LogPath)) { return }
-    if ((Get-Item $LogPath).Length -lt ($MaxLogSizeMB * 1MB)) { return }
+    if (!(Test-Path `$LogPath)) { return }
+    if ((Get-Item `$LogPath).Length -lt (`$MaxLogSizeMB * 1MB)) { return }
 
-    $stamp = Get-Date -Format "yyyyMMdd_HHmmss"
-    $arch  = Join-Path $LogDir ("rdp_disconnect_watch.$stamp.log")
-    Move-Item $LogPath $arch -Force
+    `$stamp = Get-Date -Format "yyyyMMdd_HHmmss"
+    `$arch  = Join-Path `$LogDir ("rdp_disconnect_watch.`$stamp.log")
+    Move-Item `$LogPath `$arch -Force
 
-    Get-ChildItem $LogDir -Filter "rdp_disconnect_watch.*.log" |
+    Get-ChildItem `$LogDir -Filter "rdp_disconnect_watch.*.log" |
         Sort-Object LastWriteTime -Descending |
-        Select-Object -Skip $MaxArchives |
+        Select-Object -Skip `$MaxArchives |
         Remove-Item -Force
 }
 
-function Get-QwinstaSessions {
-    $raw = & cmd /c "qwinsta" 2>$null
-    if (!$raw) { return @() }
-
-    $sessions = @()
-    foreach ($line in ($raw | Select-Object -Skip 1)) {
-        if ([string]::IsNullOrWhiteSpace($line)) { continue }
-        $t = ($line.Trim() -replace '^\>','') -split '\s+'
-
-        if ($t.Count -ge 4) {
-            $sessions += [pscustomobject]@{
-                SessionName = $t[0]
-                UserName    = $t[1]
-                Id          = [int]$t[2]
-                State       = $t[3]
-            }
-        }
-        elseif ($t.Count -eq 3) {
-            $sessions += [pscustomobject]@{
-                SessionName = ""
-                UserName    = $t[0]
-                Id          = [int]$t[1]
-                State       = $t[2]
-            }
-        }
-    }
-    return $sessions
+function Get-QwinstaRaw {
+    & cmd /c "qwinsta" 2>`$null
 }
 
-function Get-AvailableRamMB {
-    # Win32_OperatingSystem FreePhysicalMemory is KB
-    try {
-        $os = Get-CimInstance -ClassName Win32_OperatingSystem -ErrorAction Stop
-        return [int][math]::Floor(($os.FreePhysicalMemory / 1024))
-    } catch {
-        return -1
+function Get-QwinstaSessions {
+    `$raw = Get-QwinstaRaw
+    if (!`$raw) { return @() }
+
+    `$sessions = @()
+    foreach (`$line in (`$raw | Select-Object -Skip 1)) {
+        if ([string]::IsNullOrWhiteSpace(`$line)) { continue }
+        `$t = (`$line.Trim() -replace '^\>','') -split '\s+'
+
+        if (`$t.Count -ge 4) {
+            `$sessions += [pscustomobject]@{
+                SessionName = `$t[0]
+                UserName    = `$t[1]
+                Id          = [int]`$t[2]
+                State       = `$t[3]
+            }
+        }
+        elseif (`$t.Count -eq 3) {
+            `$sessions += [pscustomobject]@{
+                SessionName = ""
+                UserName    = `$t[0]
+                Id          = [int]`$t[1]
+                State       = `$t[2]
+            }
+        }
     }
+    return `$sessions
 }
 
 function Get-SystemInfoMemoryLines {
-    & cmd /c 'systeminfo | findstr /C:"Total Physical Memory" /C:"Available Physical Memory"' 2>$null
+    & cmd /c 'systeminfo | findstr /C:"Total Physical Memory" /C:"Available Physical Memory"' 2>`$null
 }
 
-function Is-DeniedUser([string]$u) {
-    if ([string]::IsNullOrWhiteSpace($u)) { return $true }
-    foreach ($d in $DenyUsers) {
-        if ($u -ieq $d) { return $true }
+function Get-ShortUser([string]`$u) {
+    if ([string]::IsNullOrWhiteSpace(`$u)) { return "" }
+    return ((`$u -split '\\')[-1])
+}
+
+function Is-DeniedUser([string]`$u) {
+    if ([string]::IsNullOrWhiteSpace(`$u)) { return `$true }
+
+    # Normalise "DOMAIN\User" -> "User"
+    `$uShort = Get-ShortUser `$u
+
+    foreach (`$d in `$DenyUsers) {
+        if ([string]::IsNullOrWhiteSpace(`$d)) { continue }
+
+        `$dShort = Get-ShortUser `$d
+
+        # Match any sensible form (exact or short)
+        if (`$u -ieq `$d) { return `$true }
+        if (`$uShort -ieq `$d) { return `$true }
+        if (`$u -ieq `$dShort) { return `$true }
+        if (`$uShort -ieq `$dShort) { return `$true }
     }
-    return $false
+    return `$false
 }
 
-function Is-AllowedUser([string]$u) {
-    if ($AllowUsers -eq $null -or $AllowUsers.Count -eq 0) { return $false }
-    foreach ($a in $AllowUsers) {
-        if ($u -ieq $a) { return $true }
-    }
-    return $false
-}
+# Boot log line (if you do not see this, the watcher is not starting)
+Write-LogLine ("[{0}] BOOT: Watcher launched. PID={1}" -f (Get-Date), `$PID)
 
-$disconnectStart = @{}
-$grace = if ($ForceCleanup.IsPresent) {
+`$disconnectStart = @{}
+`$grace = if (`$ForceCleanup.IsPresent) {
     New-TimeSpan -Seconds 0
 } else {
-    New-TimeSpan -Minutes $DisconnectGraceMinutes
+    New-TimeSpan -Minutes `$DisconnectGraceMinutes
 }
 
-$enforcementEnabled =
-    ($ForceCleanup.IsPresent) -or (
-        ($RamThresholdMB -gt 0) -and
-        ($AllowUsers -ne $null) -and
-        ($AllowUsers.Count -gt 0)
-    )
+Write-LogLine ("[{0}] START: Poll={1}s GraceMin={2} ForceCleanup={3} RunOnce={4} DenyUsers={5}" -f `
+    (Get-Date), `$PollSeconds, `$DisconnectGraceMinutes, `$ForceCleanup.IsPresent, `$RunOnce.IsPresent, (`$DenyUsers -join ","))
 
-Write-LogLine ("[{0}] START: Poll={1}s GraceMin={2} RamThresholdMB={3} EnforcementEnabled={4} ForceCleanup={5} RunOnce={6} AllowUsers={7} DenyUsers={8}" -f `
-    (Get-Date), $PollSeconds, $DisconnectGraceMinutes, $RamThresholdMB, $enforcementEnabled, $ForceCleanup.IsPresent, $RunOnce.IsPresent, `
-    (($AllowUsers -join ",") -replace '\s+$',''), (($DenyUsers -join ",") -replace '\s+$','')
-)
-
-while ($true) {
+while (`$true) {
     try {
         Rotate-LogIfNeeded
-        $now = Get-Date
-        $sessions = Get-QwinstaSessions
+        `$now = Get-Date
+        `$sessions = Get-QwinstaSessions
 
-        $availMB = Get-AvailableRamMB
-
-        # Log the RAM gate decision context every loop (audit trail)
-        if ($availMB -ge 0) {
-            Write-LogLine ("[{0}] RAM: AvailMB={1} ThresholdMB={2} GateActive={3}" -f `
-                $now, $availMB, $RamThresholdMB, ($availMB -lt $RamThresholdMB))
-        } else {
-            Write-LogLine ("[{0}] RAM: AvailMB=UNKNOWN ThresholdMB={1} GateActive=UNKNOWN" -f `
-                $now, $RamThresholdMB)
+        # If parsing yields nothing, log raw qwinsta output so you can see what changed
+        if (`$sessions.Count -eq 0) {
+            Write-LogLine ("[{0}] WARN: Parsed 0 sessions. Raw qwinsta output follows:" -f `$now)
+            `$raw = Get-QwinstaRaw
+            if (`$raw) {
+                foreach (`$l in `$raw) {
+                    Write-LogLine ("[{0}] qwinsta> {1}" -f `$now, `$l)
+                }
+            } else {
+                Write-LogLine ("[{0}] qwinsta> (no output)" -f `$now)
+            }
         }
 
-        foreach ($s in $sessions) {
+        foreach (`$s in `$sessions) {
+            if (`$s.Id -le 0) { continue }
+            if ([string]::IsNullOrWhiteSpace(`$s.UserName)) { continue }
 
-            # Safety: only real user sessions
-            if ($s.Id -le 0) { continue }
-            if ([string]::IsNullOrWhiteSpace($s.UserName)) { continue }
-
-            if ($s.State -ne "Disc") {
-                $disconnectStart.Remove($s.Id) | Out-Null
+            if (Is-DeniedUser `$s.UserName) {
+                if (`$s.State -eq "Disc") {
+                    Write-LogLine ("[{0}] SKIP: User={1} (Short={2}) ID={3} State={4} Reason=DeniedUser" -f `
+                        `$now, `$s.UserName, (Get-ShortUser `$s.UserName), `$s.Id, `$s.State)
+                }
                 continue
             }
 
-            $user = $s.UserName
-            $id   = $s.Id
+            if (`$s.State -eq "Disc") {
 
-            # Start timer when first seen disconnected
-            if (-not $disconnectStart.ContainsKey($id)) {
-                $disconnectStart[$id] = $now
-            }
-
-            $discFor = ($now - $disconnectStart[$id])
-            $discForMin = [int][math]::Floor($discFor.TotalMinutes)
-
-            # Default deny
-            if (Is-DeniedUser $user) {
-                Write-LogLine ("[{0}] DECISION: User={1} ID={2} State=Disc DiscForMin={3} Action=SKIP Reason=DefaultDeny" -f `
-                    $now, $user, $id, $discForMin)
-                continue
-            }
-
-            # Allowlist-only enforcement (unless ForceCleanup)
-            $isAllowed = Is-AllowedUser $user
-            if (-not $ForceCleanup.IsPresent -and -not $isAllowed) {
-                Write-LogLine ("[{0}] DECISION: User={1} ID={2} State=Disc DiscForMin={3} Action=SKIP Reason=NotInAllowList" -f `
-                    $now, $user, $id, $discForMin)
-                continue
-            }
-
-            # If not configured, audit only
-            if (-not $ForceCleanup.IsPresent -and -not $enforcementEnabled) {
-                Write-LogLine ("[{0}] DECISION: User={1} ID={2} State=Disc DiscForMin={3} Action=SKIP Reason=EnforcementDisabled(AllowListEmptyOrThresholdInvalid)" -f `
-                    $now, $user, $id, $discForMin)
-                continue
-            }
-
-            # Grace window
-            if (-not $ForceCleanup.IsPresent -and $discFor -lt $grace) {
-                Write-LogLine ("[{0}] DECISION: User={1} ID={2} State=Disc DiscForMin={3} Action=SKIP Reason=WithinGrace(GraceMin={4})" -f `
-                    $now, $user, $id, $discForMin, $DisconnectGraceMinutes)
-                continue
-            }
-
-            # RAM gate
-            if (-not $ForceCleanup.IsPresent) {
-                if ($availMB -lt 0) {
-                    Write-LogLine ("[{0}] DECISION: User={1} ID={2} State=Disc DiscForMin={3} AvailMB=UNKNOWN Action=SKIP Reason=RamCheckFailed" -f `
-                        $now, $user, $id, $discForMin)
+                # ForceCleanup/RunOnce test mode still respects DenyUsers (Administrator stays safe)
+                if (`$RunOnce.IsPresent -and `$ForceCleanup.IsPresent) {
+                    Write-LogLine ("[{0}] FORCE: User={1} ID={2} -> rwinsta" -f `$now, `$s.UserName, `$s.Id)
+                    Get-SystemInfoMemoryLines | ForEach-Object {
+                        Write-LogLine ("[{0}] {1}" -f `$now, `$_.Trim())
+                    }
+                    & cmd /c ("rwinsta {0}" -f `$s.Id) | ForEach-Object {
+                        Write-LogLine ("[{0}] rwinsta: {1}" -f `$now, `$_)
+                    }
                     continue
                 }
 
-                if ($availMB -ge $RamThresholdMB) {
-                    Write-LogLine ("[{0}] DECISION: User={1} ID={2} State=Disc DiscForMin={3} AvailMB={4} ThresholdMB={5} Action=SKIP Reason=RamAboveThreshold" -f `
-                        $now, $user, $id, $discForMin, $availMB, $RamThresholdMB)
-                    continue
+                if (-not `$disconnectStart.ContainsKey(`$s.Id)) {
+                    `$disconnectStart[`$s.Id] = `$now
                 }
-
-                Write-LogLine ("[{0}] GATEPASS: User={1} ID={2} DiscForMin={3} AvailMB={4} ThresholdMB={5} Reason=RamBelowThreshold" -f `
-                    $now, $user, $id, $discForMin, $availMB, $RamThresholdMB)
-            }
-
-            # ForceCleanup mode (RunOnce test) keeps legacy behaviour but remains audited
-            if ($RunOnce.IsPresent -and $ForceCleanup.IsPresent) {
-                Write-LogLine ("[{0}] ACTION: User={1} ID={2} DiscForMin={3} -> rwinsta Reason=ForceCleanup" -f `
-                    $now, $user, $id, $discForMin)
-
-                Get-SystemInfoMemoryLines | ForEach-Object {
-                    Write-LogLine ("[{0}] {1}" -f $now, $_.Trim())
+                elseif ((`$now - `$disconnectStart[`$s.Id]) -ge `$grace) {
+                    Write-LogLine ("[{0}] TIMEOUT: User={1} ID={2} -> rwinsta" -f `$now, `$s.UserName, `$s.Id)
+                    Get-SystemInfoMemoryLines | ForEach-Object {
+                        Write-LogLine ("[{0}] {1}" -f `$now, `$_.Trim())
+                    }
+                    & cmd /c ("rwinsta {0}" -f `$s.Id) | ForEach-Object {
+                        Write-LogLine ("[{0}] rwinsta: {1}" -f `$now, `$_)
+                    }
+                    `$disconnectStart.Remove(`$s.Id) | Out-Null
                 }
-
-                & cmd /c ("rwinsta {0}" -f $id) | ForEach-Object {
-                    Write-LogLine ("[{0}] rwinsta: {1}" -f $now, $_)
-                }
-
-                $disconnectStart.Remove($id) | Out-Null
-                continue
             }
-
-            # Audit-first snapshot then cleanup
-            Write-LogLine ("[{0}] ACTION: User={1} ID={2} DiscForMin={3} -> rwinsta Reason=TimeoutAndRamGate" -f `
-                $now, $user, $id, $discForMin)
-
-            Get-SystemInfoMemoryLines | ForEach-Object {
-                Write-LogLine ("[{0}] {1}" -f $now, $_.Trim())
+            else {
+                `$disconnectStart.Remove(`$s.Id) | Out-Null
             }
-
-            & cmd /c ("rwinsta {0}" -f $id) | ForEach-Object {
-                Write-LogLine ("[{0}] rwinsta: {1}" -f $now, $_)
-            }
-
-            $disconnectStart.Remove($id) | Out-Null
         }
 
-        if ($RunOnce.IsPresent) {
+        if (`$RunOnce.IsPresent) {
             Write-LogLine ("[{0}] EXIT: RunOnce" -f (Get-Date))
             break
         }
 
-        Start-Sleep -Seconds $PollSeconds
+        Start-Sleep -Seconds `$PollSeconds
     }
     catch {
-        Write-LogLine ("[{0}] ERROR: {1}" -f (Get-Date), $_.Exception.Message)
-        if ($RunOnce.IsPresent) { break }
-        Start-Sleep -Seconds $PollSeconds
+        # If logging fails due to file/path issues, this catch may still fail to write.
+        try {
+            Write-LogLine ("[{0}] ERROR: {1}" -f (Get-Date), `$_.Exception.Message)
+        } catch {}
+        if (`$RunOnce.IsPresent) { break }
+        Start-Sleep -Seconds `$PollSeconds
     }
 }
-'@ | Set-Content -Path $Watcher -Encoding UTF8 -Force
+"@
 
+$watcherContent | Set-Content -Path $Watcher -Encoding UTF8 -Force
     }
 }
-
-# Dan Gibson
 
 # ---------------- scheduled task ----------------
 
 function Install-Task {
-
     if (!(Test-Path $Watcher)) {
         throw "Watcher not found at $Watcher"
     }
@@ -350,16 +332,11 @@ function Install-Task {
             }
         } catch {}
 
+        # Ensure execution policy while we're running elevated (optional but requested)
+        Ensure-ExecutionPolicyRemoteSignedLocalMachine
+
         $exe  = "powershell.exe"
-
-        # Expand list args safely
-        $allowArg = ""
-        foreach ($u in $AllowUsers) { $allowArg += " -AllowUsers `"$u`"" }
-
-        $denyArg = ""
-        foreach ($u in $DenyUsers) { $denyArg += " -DenyUsers `"$u`"" }
-
-        $args = "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$Watcher`" -LogDir `"$LogDir`" -PollSeconds $PollSeconds -DisconnectGraceMinutes $DisconnectGraceMinutes -RamThresholdMB $RamThresholdMB $allowArg $denyArg -MaxLogSizeMB $MaxLogSizeMB -MaxArchives $MaxArchives"
+        $args = "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$Watcher`""
 
         Register-ScheduledTask `
             -TaskName $TaskName `
@@ -378,14 +355,13 @@ function Start-TaskNow {
 }
 
 function One-Time-TestRun {
-
     if (!(Test-Path $Watcher)) {
         throw "Watcher not found at $Watcher"
     }
 
     Do-Action "One-time test run (ForceCleanup + RunOnce)" {
         & powershell.exe -NoProfile -ExecutionPolicy Bypass -Command `
-            "& '$Watcher' -LogDir '$LogDir' -PollSeconds 1 -DisconnectGraceMinutes 0 -ForceCleanup -RunOnce -RamThresholdMB $RamThresholdMB"
+            "& '$Watcher' -PollSeconds 1 -DisconnectGraceMinutes 0 -ForceCleanup -RunOnce"
     }
 }
 
@@ -396,7 +372,9 @@ Say "ScriptsDir=$ScriptsDir"
 Say "LogDir=$LogDir"
 Say "Watcher=$Watcher"
 Say "TaskName=$TaskName"
-Say ("Policy: RamThresholdMB={0} AllowUsers={1} DenyUsers={2}" -f $RamThresholdMB, ($AllowUsers -join ","), ($DenyUsers -join ","))
+Say ("Config: PollSeconds={0} DisconnectGraceMinutes={1} MaxLogSizeMB={2} MaxArchives={3} DenyUsers={4}" -f `
+    $PollSeconds, $DisconnectGraceMinutes, $MaxLogSizeMB, $MaxArchives, ($DenyUsers -join ","))
+
 Say ("Toggles: EnsureFolders={0} WriteWatcher={1} InstallTask={2} StartTask={3} OneTimeTestRun={4} DryRun={5}" -f `
     $DoEnsureFolders.IsPresent, $DoWriteWatcher.IsPresent, $DoInstallScheduledTask.IsPresent, `
     $DoStartScheduledTask.IsPresent, $DoOneTimeTestRun.IsPresent, $DoDryRun.IsPresent)
@@ -408,11 +386,11 @@ if ($DoEnsureFolders) {
 
 if ($DoWriteWatcher) {
     Ensure-Dir $ScriptsDir
+    Ensure-Dir $LogDir
     Write-WatcherScript
 }
 
 if ($DoInstallScheduledTask) {
-    Ensure-Dir $LogDir
     Install-Task
 }
 
